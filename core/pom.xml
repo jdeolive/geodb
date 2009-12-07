@@ -2,18 +2,40 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.opengeo</groupId>
-  <artifactId>geodb-parent</artifactId>
-  <packaging>pom</packaging>
-  <version>0.1-SNAPSHOT</version>
-  <name>GeoDB</name>
+  <parent>
+    <groupId>org.opengeo</groupId>
+    <artifactId>geodb-parent</artifactId>
+    <version>0.1-SNAPSHOT</version>
+  </parent>
 
-  <repositories>
-    <repository>
-      <id>opengeo</id>
-      <url>http://repo.opengeo.org</url>
-    </repository>
-  </repositories>
+  <groupId>org.opengeo</groupId>
+  <artifactId>geodb</artifactId>
+  <packaging>jar</packaging>
+  <name>GeoDB Core</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>1.1.118</version>
+    </dependency>
+    <dependency>
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts</artifactId>
+      <version>1.10</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sourceforge.hatbox</groupId>
+      <artifactId>hatbox</artifactId>
+      <version>1.0.b2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.7</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
@@ -47,36 +69,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <finalName>geodb-${project.version}</finalName>
-          <descriptors>
-            <descriptor>app.xml</descriptor>
-            <descriptor>bin.xml</descriptor>
-          </descriptors>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
-
-  <distributionManagement>
-    <repository>
-      <id>opengeo</id>
-      <name>OpenGeo Maven Repository</name>
-      <url>dav:http://repo.opengeo.org</url>
-    </repository>
-    <snapshotRepository>
-      <id>opengeo</id>
-      <name>OpenGeo Maven Repository</name>
-      <url>dav:http://repo.opengeo.org</url>
-      <uniqueVersion>false</uniqueVersion>
-    </snapshotRepository>
-  </distributionManagement>
-
-  <modules>
-    <module>core</module>
-    <module>app</module>
-  </modules>
 
 </project>
