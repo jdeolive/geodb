@@ -89,7 +89,7 @@ public class GeoDB {
             
                 //load h2 functions
                 BufferedReader in = new BufferedReader(
-                    new InputStreamReader(GeoDB.class.getResourceAsStream("geoh2.sql")));
+                    new InputStreamReader(GeoDB.class.getResourceAsStream("geodb.sql")));
                 String line = null;
                 while((line = in.readLine()) != null) {
                     try {
