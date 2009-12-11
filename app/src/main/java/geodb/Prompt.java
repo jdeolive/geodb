@@ -31,13 +31,11 @@ public class Prompt {
         //load the driver configuration file
         File hpconfig = new File(hpdir, "drivers");
         if (!hpconfig.exists()) {
-            //create it
-            if (!hpconfig.canWrite()) {
-                System.out.println("ERROR: Can not create HenPlus driver configuration");
-                System.exit(-1);
-            }
-            
             hpconfig.createNewFile();
+        }
+        if (!hpconfig.exists()) {
+            System.out.println("ERROR: Could not create HenPlus configuration");
+            System.exit(-1);
         }
         
         Properties hpprops = new Properties();
