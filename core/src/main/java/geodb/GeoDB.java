@@ -55,7 +55,7 @@ public class GeoDB {
      * Returns the internal version of the GeoH2 bindings in order to track upgrades.
      */
     public static String CheckSum() {
-        return "3";
+        return "4";
     }
     
     //
@@ -67,7 +67,7 @@ public class GeoDB {
             try {
                 //first check if this database is already spatial and up to date
                 try { 
-                    ResultSet rs = st.executeQuery("SELECT checksum FROM _GEOH2");
+                    ResultSet rs = st.executeQuery("SELECT checksum FROM _GEODB");
                     try {
                         //table exists, check the checksum
                         if (rs.next()) {
@@ -114,9 +114,9 @@ public class GeoDB {
                 }
                 
                 //create the _GEOH2 metadata table
-                st.execute("CREATE TABLE IF NOT EXISTS _GEOH2 (checksum VARCHAR)");
-                st.execute("DELETE FROM _GEOH2");
-                st.execute("INSERT INTO _GEOH2 VALUES (" + CheckSum() + ")" );
+                st.execute("CREATE TABLE IF NOT EXISTS _GEODB (checksum VARCHAR)");
+                st.execute("DELETE FROM _GEODB");
+                st.execute("INSERT INTO _GEODB VALUES (" + CheckSum() + ")" );
             }
             finally {
                 st.close();
