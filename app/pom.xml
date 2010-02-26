@@ -11,7 +11,7 @@
   <groupId>org.opengeo</groupId>
   <artifactId>geodb-app</artifactId>
   <packaging>jar</packaging>
-  <name>GeoDB Command Line App</name>
+  <name>GeoDB App</name>
 
   <dependencies>
     <dependency>
