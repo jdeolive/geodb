@@ -14,8 +14,9 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 
-import net.sourceforge.hatbox.TableMetaData;
+import net.sourceforge.hatbox.MetaNode;
 import net.sourceforge.hatbox.tools.CmdLine;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -32,6 +33,10 @@ import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
 
 public class GeoDB {
 
+    static {
+        CmdLine.LOGGER.setLevel(Level.WARNING);
+    }
+    
     /**
      * wkb reader + writer
      */
@@ -830,13 +835,8 @@ public class GeoDB {
                 ResultSet rs = ps.executeQuery();
                 try {
                     if (rs.next()) {
-                        try {
-                            TableMetaData md = new TableMetaData(rs.getBytes(1));
-                            return md.getSrid();
-                        } 
-                        catch (IOException e) {
-                            throw (SQLException) new SQLException().initCause(e);
-                        }
+                        MetaNode md = new MetaNode(rs.getBytes(1));
+                        return md.getSrid();
                     }
                 }
                 finally {
