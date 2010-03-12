@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import net.sourceforge.hatbox.MetaNode;
+import net.sourceforge.hatbox.jts.Proc;
 import net.sourceforge.hatbox.tools.CmdLine;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -754,7 +755,7 @@ public class GeoDB {
         args.put("srid", srid);
         try {
             CmdLine.spatialize(cx, args);
-            CmdLine.buildIndex(cx, args);
+            Proc.buildIndex(cx, schemaName, tableName, 10000, null);
         } 
         catch (Exception e) {
             throw (SQLException) new SQLException("Error creating spatial index").initCause(e);

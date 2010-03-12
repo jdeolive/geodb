@@ -27,7 +27,7 @@
     <dependency>
       <groupId>net.sourceforge.hatbox</groupId>
       <artifactId>hatbox</artifactId>
-      <version>1.0.b6</version>
+      <version>1.0.b7</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
