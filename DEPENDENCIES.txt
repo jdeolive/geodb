@@ -1,0 +1,14 @@
+GeoDB depends on the following libraries:
+
+  * H2 Database 
+    http://www.h2database.com 
+    Dual MPL/EPL license. See http://www.h2database.com/html/license.html
+    
+  * JTS Topology Suite
+    http://tsusiatsoftware.net/jts/main.html
+    LGPL license.  
+
+  * Hatbox RTree
+    http://hatbox.sourceforge.net/
+    LGPL license.
+    
