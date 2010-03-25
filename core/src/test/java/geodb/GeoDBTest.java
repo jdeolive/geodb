@@ -4,25 +4,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-import org.h2.tools.DeleteDbFiles;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
-public class GeoDBTest {
-
-    Connection cx;
+public class GeoDBTest extends GeoDBTestSupport {
 
     @Before
     public void setUp() throws Exception {
-        Class.forName("org.h2.Driver");
-        cx = DriverManager.getConnection("jdbc:h2:geodb");
+        super.setUp();
         
         Statement st = cx.createStatement();
         st.execute("DROP TABLE IF EXISTS _GEODB");
@@ -30,16 +22,6 @@ public class GeoDBTest {
         st.execute("DROP TABLE IF EXISTS spatial_hatbox");
         st.execute("DROP TABLE IF EXISTS noindex");
         st.close();
-    }
-    
-    @After
-    public void tearDown() throws Exception {
-        cx.close();
-    }
-    
-    @AfterClass
-    public static void destroyDB() throws Exception {
-        DeleteDbFiles.execute(".", "geodb", true);
     }
     
     @Test
@@ -88,4 +70,5 @@ public class GeoDBTest {
         
         st.close();
     }
+
 }

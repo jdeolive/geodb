@@ -42,7 +42,7 @@ public class GeoDB {
      * wkb reader + writer
      */
     static WKBReader wkbreader = new WKBReader();
-    static WKBWriter wkbwriter = new WKBWriter();
+    static WKBWriter wkbwriter = new WKBWriter(2, true);
     
     /**
      * wkt reader + writer
