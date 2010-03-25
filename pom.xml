@@ -5,7 +5,7 @@
   <groupId>org.opengeo</groupId>
   <artifactId>geodb-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.3</version>
+  <version>0.4</version>
   <name>GeoDB</name>
 
   <repositories>
@@ -53,7 +53,7 @@
           <finalName>geodb-${project.version}</finalName>
           <descriptors>
             <descriptor>app.xml</descriptor>
-            <descriptor>bin.xml</descriptor>
+            <descriptor>lib.xml</descriptor>
           </descriptors>
         </configuration>
       </plugin>
