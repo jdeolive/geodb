@@ -22,6 +22,7 @@ import net.sourceforge.hatbox.tools.CmdLine;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.InputStreamInStream;
 import com.vividsolutions.jts.io.OutputStreamOutStream;
@@ -37,18 +38,34 @@ public class GeoDB {
     static {
         CmdLine.LOGGER.setLevel(Level.WARNING);
     }
+
+    static GeometryFactory gfactory = new GeometryFactory();
     
-    /**
-     * wkb reader + writer
-     */
-    static WKBReader wkbreader = new WKBReader();
-    static WKBWriter wkbwriter = new WKBWriter(2, true);
+    static final WKBWriter wkbwriter() {
+        try {
+            return new WKBWriter(2, true);
+        }
+        catch(NoSuchMethodError e) {
+            //means they are using an older verison of jts, fallback to old constructor
+            //TODO: log a warning
+            return new WKBWriter(2);
+        }
+        
+    }
     
-    /**
-     * wkt reader + writer
-     */
-    static WKTReader wktreader = new WKTReader();
-    static WKTWriter wktwriter = new WKTWriter();
+    static final WKBReader wkbreader() {
+        return new WKBReader(gfactory);
+    }
+    
+    static final WKTWriter wktwriter() {
+        return new WKTWriter();
+    }
+    
+    static final WKTReader wktreader() {
+        return new WKTReader(gfactory);
+    }
+             
+
     
     /**
      * Returns the current GeoH2 version.
@@ -236,7 +253,7 @@ public class GeoDB {
         }
         
         try {
-            Geometry g = wkbreader.read(wkb);
+            Geometry g = wkbreader().read(wkb);
             g.setSRID(srid);
             
             return gToWKB(g);
@@ -976,7 +993,7 @@ public class GeoDB {
     // helper/utility functions
     //
     public static byte[] gToWKB( Geometry g ) {
-        return wkbwriter.write( g );
+        return wkbwriter().write( g );
     }
     
     public static byte[] gToEWKB( Geometry g ) {
@@ -988,7 +1005,7 @@ public class GeoDB {
             
             //write the geometry
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            wkbwriter.write( g , new OutputStreamOutStream( bytes ) );
+            wkbwriter().write( g , new OutputStreamOutStream( bytes ) );
             byte[] b = bytes.toByteArray();
             
             //convert to postgis style ewkb which has the srid
@@ -1021,7 +1038,7 @@ public class GeoDB {
     }
     
     public static Geometry gFromWKB( byte[] wkb ) {
-        return gFromWKB( wkb, wkbreader );
+        return gFromWKB( wkb, wkbreader() );
     }
     
     public static Geometry gFromWKB( byte[] wkb, WKBReader wkbreader ) {
@@ -1035,7 +1052,7 @@ public class GeoDB {
     
     
     public static Geometry gFromEWKB( byte[] wkb ) {
-        return gFromEWKB(wkb,wkbreader);
+        return gFromEWKB(wkb,wkbreader());
     }
     public static Geometry gFromEWKB( byte[] wkb, WKBReader wkbreader ) {
         
@@ -1079,7 +1096,7 @@ public class GeoDB {
     
     public static Envelope envFromWKB( byte[] wkb ) {
         try {
-            return wkbreader.read(wkb).getEnvelopeInternal();
+            return wkbreader().read(wkb).getEnvelopeInternal();
         } 
         catch (ParseException e) {
             throw new RuntimeException(e);
@@ -1120,7 +1137,7 @@ public class GeoDB {
     
     public static Geometry gFromWKT( String wkt, int srid ) {
         try {
-            Geometry g = wktreader.read( wkt );
+            Geometry g = wktreader().read( wkt );
             g.setSRID(srid);
             return g;
         } 
