@@ -5,7 +5,7 @@
   <groupId>org.opengeo</groupId>
   <artifactId>geodb-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.4</version>
+  <version>0.5-SNAPSHOT</version>
   <name>GeoDB</name>
 
   <repositories>
