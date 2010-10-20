@@ -84,4 +84,14 @@ public class GeoHashTrigger implements Trigger {
         }
     }
 
+    public void close() throws SQLException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void remove() throws SQLException {
+        // TODO Auto-generated method stub
+        
+    }
+
 }
