@@ -78,7 +78,7 @@ public class GeoDB {
      * Returns the internal version of the GeoH2 bindings in order to track upgrades.
      */
     public static String CheckSum() {
-        return "4";
+        return "5";
     }
     
     //
@@ -140,6 +140,11 @@ public class GeoDB {
                 st.execute("CREATE TABLE IF NOT EXISTS _GEODB (checksum VARCHAR)");
                 st.execute("DELETE FROM _GEODB");
                 st.execute("INSERT INTO _GEODB VALUES (" + CheckSum() + ")" );
+                
+                //create the geometry columns table
+                st.execute("CREATE TABLE IF NOT EXISTS geometry_columns (f_table_schema VARCHAR, " +
+                    "f_table_name VARCHAR, f_geometry_column VARCHAR, coord_dimension INT, " +
+                    "srid INT, type VARCHAR(30))");
             }
             finally {
                 st.close();
@@ -148,6 +153,93 @@ public class GeoDB {
         catch( Exception e ) {
             throw (SQLException) new SQLException("Could not initialize database").initCause(e);
         }
+    }
+    
+    //
+    // Management functions
+    //
+    /**
+     * Adds a geometry column to a table.
+     * 
+     * @param schema The table schema, may be <code>null</code> to specify default schema
+     * @param table The table name, not null
+     * @param column The geometry column name, not null
+     * @param srid The spatial reference system identifier
+     * @param type The geometry type, one of "POINT", "LINESTRING", "POLYGON", "MULTIPOINT", 
+     *             "MULTILINESTRING", "MULTIPOLYGON", "GEOMETRY", "GEOMETRYCOLLECTION"
+     * @param dim The geometry dimension 
+     */
+    public static void AddGeometryColumn(Connection cx, String schema, String table, 
+        String column, int srid, String type, int dim) throws SQLException {
+        
+        type = type.toUpperCase();
+        
+        Statement st = cx.createStatement();
+        try {
+            ResultSet rs = 
+                cx.getMetaData().getColumns(null, schema, table, column);
+            try {
+                if (!rs.next()) {
+                    st.execute("ALTER TABLE " + tbl(schema, table) + " ADD " 
+                        + esc(column) + " " + type + " COMMENT '" + type + "'");
+                }
+            }
+            finally {
+                rs.close();
+            }
+            
+            schema = schema != null ? schema : "PUBLIC";   
+            if (!"GEOMETRY".equals(type) && !"GEOMETRYCOLLECTION".equals(type)) {
+                st.execute("ALTER TABLE " + tbl(schema, table) + " ADD CONSTRAINT " + 
+                    esc(geotypeConstraint(schema,table,column)) + " CHECK " + esc(column) + 
+                    " IS NULL OR " + "GeometryType(" + esc(column) + ") = '" + type + "'");
+            }
+            st.execute("INSERT INTO geometry_columns VALUES (" + 
+                str(schema) + ", " + str(table) + ", " + str(column) + ", " + 
+                srid + ", " + dim + ", " + str(type) + ")");
+        }
+        finally {
+            st.close();
+        }
+    }
+    
+    /**
+     * Drops a geometry column from a table.
+     * 
+     * @param schema The table schema, may be <code>null</code> to specify default schema
+     * @param table The table name, not null
+     * @param column The geometry column name, not null
+     */
+    public static void DropGeometryColumn(Connection cx, String schema, String table, String column) 
+        throws SQLException {
+        
+        Statement st = cx.createStatement();
+        try {
+            //check the case of a view
+            boolean isView = false;
+            ResultSet tables = cx.getMetaData().getTables(null, schema, table, new String[]{"VIEW"});
+            try {
+                isView = tables.next();
+            }
+            finally {
+                tables.close();
+            }
+            
+            schema = schema != null ? schema : "PUBLIC";
+            st.execute("ALTER TABLE " + tbl(schema, table) + " DROP CONSTRAINT IF EXISTS " 
+                + esc(geotypeConstraint(schema,table,column)));
+            
+            if (!isView) {
+                st.execute("ALTER TABLE " + tbl(schema, table) + " DROP COLUMN " + esc(column));
+            }
+            
+            st.execute("DELETE FROM geometry_columns WHERE f_table_schema = " + str(schema) + 
+                " AND " + "f_table_name = " + str(table) + " AND f_geometry_column = " + str(column));
+        }
+        finally {
+            st.close();
+        }
+
     }
     
     //
@@ -1246,5 +1338,28 @@ public class GeoDB {
         catch (IOException e) {
             throw new RuntimeException( e );
         }
+    }
+    
+    //
+    // some encoding helper functions
+    //
+    static String tbl(String schema, String table) {
+        return schema != null ? esc(schema)+"."+esc(table) : esc(table);
+    }
+    
+    static String esc(String s) {
+        return "\"" + s + "\"";
+    }
+    
+    static String str(String s) {
+        return "'"+s+"'";
+    }
+    
+    static String geotypeConstraint(String schema, String table, String column) {
+        String name = table + "_" + column;
+        if (schema != null) {
+            name = schema + "_" + name;
+        }
+        return "ENFORCE_GEOTYPE_" + name;
     }
 }

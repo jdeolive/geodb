@@ -1,4 +1,6 @@
+CREATE ALIAS AddGeometryColumn for "geodb.GeoDB.AddGeometryColumn"
 CREATE ALIAS CreateSpatialIndex for "geodb.GeoDB.CreateSpatialIndex"
+CREATE ALIAS DropGeometryColumn for "geodb.GeoDB.DropGeometryColumn"
 CREATE ALIAS DropSpatialIndex for "geodb.GeoDB.DropSpatialIndex"
 CREATE ALIAS EnvelopeAsText for "geodb.GeoDB.EnvelopeAsText"
 CREATE ALIAS GeometryType for "geodb.GeoDB.GeometryType"
@@ -33,3 +35,11 @@ CREATE ALIAS ST_Simplify FOR "geodb.GeoDB.ST_Simplify"
 CREATE ALIAS ST_Touches FOR "geodb.GeoDB.ST_Touches"
 CREATE ALIAS ST_Within FOR "geodb.GeoDB.ST_Within"
 CREATE ALIAS Version FOR "geodb.GeoDB.Version"
+CREATE DOMAIN POINT AS BLOB
+CREATE DOMAIN LINESTRING AS BLOB
+CREATE DOMAIN POLYGON AS BLOB
+CREATE DOMAIN MULTIPOINT AS BLOB
+CREATE DOMAIN MULTILINESTRING AS BLOB
+CREATE DOMAIN MULTIPOLYGON AS BLOB
+CREATE DOMAIN GEOMETRYCOLLECTION AS BLOB
+CREATE DOMAIN GEOMETRY AS BLOB
