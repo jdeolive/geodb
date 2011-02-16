@@ -20,6 +20,7 @@ import net.sourceforge.hatbox.MetaNode;
 import net.sourceforge.hatbox.jts.Proc;
 import net.sourceforge.hatbox.tools.CmdLine;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -78,7 +79,7 @@ public class GeoDB {
      * Returns the internal version of the GeoH2 bindings in order to track upgrades.
      */
     public static String CheckSum() {
-        return "5";
+        return "6";
     }
     
     //
@@ -353,6 +354,13 @@ public class GeoDB {
         catch (ParseException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+    
+    /**
+     * Creates a Point geometry from x, y values.
+     */
+    public static byte[] ST_MakePoint(double x, double y) {
+        return gToWKB(gfactory.createPoint(new Coordinate(x,y))); 
     }
     
     /**
