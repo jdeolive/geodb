@@ -1,6 +1,7 @@
 CREATE ALIAS AddGeometryColumn for "geodb.GeoDB.AddGeometryColumn"
 CREATE ALIAS CreateSpatialIndex for "geodb.GeoDB.CreateSpatialIndex"
 CREATE ALIAS DropGeometryColumn for "geodb.GeoDB.DropGeometryColumn"
+CREATE ALIAS DropGeometryColumns for "geodb.GeoDB.DropGeometryColumns"
 CREATE ALIAS DropSpatialIndex for "geodb.GeoDB.DropSpatialIndex"
 CREATE ALIAS EnvelopeAsText for "geodb.GeoDB.EnvelopeAsText"
 CREATE ALIAS GeometryType for "geodb.GeoDB.GeometryType"

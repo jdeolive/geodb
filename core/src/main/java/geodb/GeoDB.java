@@ -79,7 +79,7 @@ public class GeoDB {
      * Returns the internal version of the GeoH2 bindings in order to track upgrades.
      */
     public static String CheckSum() {
-        return "6";
+        return "7";
     }
     
     //
@@ -240,7 +240,34 @@ public class GeoDB {
         finally {
             st.close();
         }
-
+    }
+    
+    /**
+     * Drops all the geometry columns from a table.
+     * 
+     * @param schema The table schema, may be <code>null</code> to specify default schema
+     * @param table The table name, not null
+     */
+    public static void DropGeometryColumns(Connection cx, String schema, String table) throws SQLException {
+        Statement st = cx.createStatement();
+        try {
+            schema = schema != null ? schema : "PUBLIC";
+            
+            //look up the geometry column entries
+            StringBuffer sql = new StringBuffer();
+            sql.append("SELECT f_geometry_column FROM geometry_columns")
+               .append(" WHERE f_table_schema = '").append(schema).append("'")
+               .append(" AND f_table_name = '").append(table).append("'");
+            
+            ResultSet columns = st.executeQuery(sql.toString());
+            while(columns.next()) {
+                String column = columns.getString(1);
+                DropGeometryColumn(cx, schema, table, column);
+            }
+        }
+        finally {
+            st.close();
+        }
     }
     
     //

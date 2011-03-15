@@ -83,7 +83,33 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
         catch(SQLException e) {}
         
         ResultSet rs = st.executeQuery("SELECT * FROM geometry_columns WHERE " +
-            " f_table_name = 'SPATIAL' and f_geometry_column = 'foo'");
+            " f_table_name = 'SPATIAL' and f_geometry_column = 'FOO'");
+        assertFalse(rs.next());
+    }
+    
+    @Test
+    public void testDropGeometryColumns() throws Exception {
+        Statement st = cx.createStatement();
+        
+        st.execute("CALL AddGeometryColumn(NULL,'SPATIAL', 'FOO', -1, 'POINT', 2)");
+        st.execute("CALL AddGeometryColumn(NULL,'SPATIAL', 'BAR', -1, 'POINT', 2)");
+        
+        st.executeQuery("SELECT foo, bar FROM spatial");
+        
+        st.execute("CALL DropGeometryColumns(NULL, 'SPATIAL')");
+        try {
+            st.executeQuery("SELECT foo FROM spatial");
+            fail("column foo should have been deleted");
+        }
+        catch(SQLException e) {}
+        try {
+            st.executeQuery("SELECT bar FROM spatial");
+            fail("column foo should have been deleted");
+        }
+        catch(SQLException e) {}
+        
+        ResultSet rs = st.executeQuery("SELECT * FROM geometry_columns WHERE " +
+            " f_table_name = 'SPATIAL' and f_geometry_column IN ('FOO','BAR')");
         assertFalse(rs.next());
     }
 }
