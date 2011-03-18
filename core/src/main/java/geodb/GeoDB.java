@@ -79,7 +79,7 @@ public class GeoDB {
      * Returns the internal version of the GeoH2 bindings in order to track upgrades.
      */
     public static String CheckSum() {
-        return "7";
+        return "8";
     }
     
     //
@@ -689,7 +689,21 @@ public class GeoDB {
         
         return g1.disjoint( g2 );
     }
-    
+
+    /**
+     * Returns the distance between two geometries. 
+     */
+    public static double ST_Distance( byte[] wkb1, byte[] wkb2 ) {
+        if ( wkb1 == null || wkb2 == null ) {
+            return -1;
+        }
+        
+        Geometry g1 = gFromWKB(wkb1);
+        Geometry g2 = gFromWKB(wkb2);
+        
+        return g1.distance(g2);
+    }
+
    /**
      * Returns true if the geometries are within the specified distance of one another
      */

@@ -12,6 +12,9 @@ import java.sql.Statement;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.WKTReader;
+
 public class GeoDBFunctionTest extends GeoDBTestSupport {
 
     @Before
@@ -111,5 +114,22 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
         ResultSet rs = st.executeQuery("SELECT * FROM geometry_columns WHERE " +
             " f_table_name = 'SPATIAL' and f_geometry_column IN ('FOO','BAR')");
         assertFalse(rs.next());
+    }
+    
+    @Test
+    public void testDistance() throws Exception {
+        WKTReader wkt = new WKTReader();
+        Geometry g1 = wkt.read("POINT(12123.343 79586.125)");
+        Geometry g2 = wkt.read("POINT(90711.7123 56791.89)");
+        double dist = g1.distance(g2);
+        
+        Statement st = cx.createStatement();
+        ResultSet rs = st.executeQuery(
+            "CALL ST_Distance(ST_GeomFromText('POINT(12123.343 79586.125)',-1), " +
+                            " ST_GeomFromText('POINT(90711.7123 56791.89)',-1));");
+        rs.next();
+        double result = rs.getDouble(1);
+        assertEquals(dist, result, 0.00001);
+        
     }
 }
