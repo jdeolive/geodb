@@ -39,6 +39,9 @@
       </plugin>
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <excludeArtifactIds>xercesImpl</excludeArtifactIds>
+        </configuration>
         <executions>
           <execution>
             <goals>
