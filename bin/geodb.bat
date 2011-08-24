@@ -26,20 +26,20 @@ goto error
 set JAVA="%JAVA_HOME%\bin\java.exe"
 
 @REM change directory to the lib directory
-@REM set CWD=%CD%
-@REM cd %~dp0../lib
-@REM
-@REM @REM build up the classpath
-@REM set CLASSPATH=;
-@REM FOR /R %%G IN (*.jar) DO (
-@REM     SET CLASSPATH=!CLASSPATH!;%%G
-@REM     )
-@REM
-@REM     cd %CWD%
-@REM     %JAVA% -cp "%CLASSPATH%" geodb.Prompt %1 
-@REM     goto end
-@REM
-@REM     :error
-@REM     set ERROR_CODE=1
-@REM
-@REM     :end
+set CWD=%CD%
+cd %~dp0../lib
+
+@REM build up the classpath
+set CLASSPATH=;
+FOR /R %%G IN (*.jar) DO (
+  SET CLASSPATH=!CLASSPATH!;%%G
+)
+
+cd %CWD%
+%JAVA% -cp "%CLASSPATH%" geodb.Prompt %1 
+goto end
+
+:error
+set ERROR_CODE=1
+
+:end
