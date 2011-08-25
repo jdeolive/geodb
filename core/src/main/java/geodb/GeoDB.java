@@ -78,8 +78,8 @@ public class GeoDB {
     /**
      * Returns the internal version of the GeoH2 bindings in order to track upgrades.
      */
-    public static String CheckSum() {
-        return "8";
+    public static String Version() {
+        return "9";
     }
     
     //
@@ -95,7 +95,7 @@ public class GeoDB {
                     try {
                         //table exists, check the checksum
                         if (rs.next()) {
-                            if (CheckSum().equalsIgnoreCase( rs.getString(1) ) ) {
+                            if (Version().equalsIgnoreCase( rs.getString(1) ) ) {
                                 //no upgrade needed, good to go
                                 return;
                             }
@@ -140,7 +140,7 @@ public class GeoDB {
                 //create the _GEOH2 metadata table
                 st.execute("CREATE TABLE IF NOT EXISTS _GEODB (checksum VARCHAR)");
                 st.execute("DELETE FROM _GEODB");
-                st.execute("INSERT INTO _GEODB VALUES (" + CheckSum() + ")" );
+                st.execute("INSERT INTO _GEODB VALUES (" + Version() + ")" );
                 
                 //create the geometry columns table
                 st.execute("CREATE TABLE IF NOT EXISTS geometry_columns (f_table_schema VARCHAR, " +
