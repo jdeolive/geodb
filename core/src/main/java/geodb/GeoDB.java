@@ -41,17 +41,23 @@ public class GeoDB {
     }
 
     static GeometryFactory gfactory = new GeometryFactory();
-    
-    static final WKBWriter wkbwriter() {
+
+    static final boolean PRE_JTS12;
+    static {
+        boolean pre = false;
         try {
-            return new WKBWriter(2, true);
+            new WKBWriter(2, true);
         }
         catch(NoSuchMethodError e) {
             //means they are using an older verison of jts, fallback to old constructor
             //TODO: log a warning
-            return new WKBWriter(2);
+            pre = true;
         }
-        
+        PRE_JTS12 = pre;
+    }
+
+    static final WKBWriter wkbwriter() {
+        return PRE_JTS12 ? new WKBWriter(2) : new WKBWriter(2, true);
     }
     
     static final WKBReader wkbreader() {
@@ -1148,29 +1154,37 @@ public class GeoDB {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             wkbwriter().write( g , new OutputStreamOutStream( bytes ) );
             byte[] b = bytes.toByteArray();
-            
+
             //convert to postgis style ewkb which has the srid
-            byte[] ewkb = new byte[32+b.length+4];
+            //jts versions < 1.12 don't really do this properly so we have to hack the bytes
+            // ourselves
+
+            byte[] ewkb = PRE_JTS12 ? new byte[32+b.length+4] : new byte[32+b.length];
             
             //first 32 bytes is the boundaing box
             Envelope bbox = g.getEnvelopeInternal();
             envToWKB(bbox,ewkb,0);
-            
-            //first byte (endianess) + 4 bytes (type)
-            System.arraycopy(b, 0, ewkb, 32, 5);
-            
-            //set the srid flag in the type byte
-            ewkb[33] |= 0x20;
-            
-            //insert the srid (assuming big endian)
-            int srid = g.getSRID();
-            ewkb[37] = (byte)(srid >>> 24);
-            ewkb[38] = (byte)(srid >> 16 & 0xff);
-            ewkb[39] = (byte)(srid >> 8 & 0xff);
-            ewkb[40] = (byte)(srid & 0xff);
-            
-            //copy the geometry
-            System.arraycopy(b,5,ewkb,41,b.length-5);
+
+            if (PRE_JTS12) {
+                //first byte (endianess) + 4 bytes (type)
+                System.arraycopy(b, 0, ewkb, 32, 5);
+                
+                //set the srid flag in the type byte
+                ewkb[33] |= 0x20;
+                
+                //insert the srid (assuming big endian)
+                int srid = g.getSRID();
+                ewkb[37] = (byte)(srid >>> 24);
+                ewkb[38] = (byte)(srid >> 16 & 0xff);
+                ewkb[39] = (byte)(srid >> 8 & 0xff);
+                ewkb[40] = (byte)(srid & 0xff);
+                
+                //copy the geometry
+                System.arraycopy(b,5,ewkb,41,b.length-5);
+            }
+            else {
+                System.arraycopy(b,0,ewkb,32,b.length);
+            }
             return ewkb;
         } 
         catch (IOException e) {
@@ -1198,8 +1212,8 @@ public class GeoDB {
     public static Geometry gFromEWKB( byte[] wkb, WKBReader wkbreader ) {
         
         try {
-            //read the geometry
-            return wkbreader.read( 
+            //just read back everything after the first 32 bytes normally
+            return wkbreader.read(
                 new InputStreamInStream(new ByteArrayInputStream(wkb,32,wkb.length-32)) );
         } 
         catch( Exception e ) {
