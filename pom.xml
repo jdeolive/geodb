@@ -77,6 +77,19 @@
     </snapshotRepository>
   </distributionManagement>
 
+  <profiles>
+    <profile>
+      <id>deploy.osgeo</id>
+      <distributionManagement>
+        <repository>
+          <id>osgeo</id>
+          <name>OSGeo GeoTools Maven Repository</name>
+          <url>dav:http://download.osgeo.org/webdav/geotools/</url>
+        </repository>
+      </distributionManagement>
+    </profile>
+  </profiles>
+
   <modules>
     <module>core</module>
     <module>app</module>
