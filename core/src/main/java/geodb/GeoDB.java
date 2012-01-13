@@ -203,7 +203,7 @@ public class GeoDB {
             }
             st.execute("INSERT INTO geometry_columns VALUES (" + 
                 str(schema) + ", " + str(table) + ", " + str(column) + ", " + 
-                srid + ", " + dim + ", " + str(type) + ")");
+                dim + ", "  + srid + ", " + str(type) + ")");
         }
         finally {
             st.close();

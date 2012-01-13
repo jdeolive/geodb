@@ -25,6 +25,7 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
         
         Statement st = cx.createStatement();
         st.execute("DROP TABLE IF EXISTS spatial");
+        st.execute("DROP TABLE IF EXISTS spatial2");
         st.execute("DELETE FROM geometry_columns");
         
         st.execute("CREATE TABLE spatial (id INT AUTO_INCREMENT PRIMARY KEY, geom BLOB)");
@@ -56,8 +57,8 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
         assertTrue(rs.next());
         assertEquals("SPATIAL", rs.getString(2));
         assertEquals("FOO", rs.getString(3));
-        assertEquals(-1, rs.getInt(4));
-        assertEquals(2, rs.getInt(5));
+        assertEquals(2, rs.getInt(4));
+        assertEquals(-1, rs.getInt(5));
         assertEquals("POINT", rs.getString(6));
         
         assertFalse(rs.next());
@@ -70,7 +71,35 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
         }
         catch(SQLException e) {}
     }
-    
+
+    @Test
+    public void testAddGeometryColumn2() throws Exception {
+        Statement st = cx.createStatement();
+        st.execute("CREATE TABLE spatial2 (id INT AUTO_INCREMENT PRIMARY KEY)");
+        st.execute("CALL AddGeometryColumn(null, 'SPATIAL2', 'GEOM', 4326, 'POINT', 2)");
+
+        ResultSet rs = st.executeQuery("SELECT * from geometry_columns");
+        assertTrue(rs.next());
+
+        /*
+        f_table_catalog   | character varying(256) | not null
+        f_table_schema    | character varying(256) | not null
+        f_table_name      | character varying(256) | not null
+        f_geometry_column | character varying(256) | not null
+        coord_dimension   | integer                | not null
+        srid              | integer                | not null
+        type              | character varying(30)  | not null
+        */
+        assertEquals("SPATIAL2", rs.getString("f_table_name"));
+        assertEquals("GEOM", rs.getString("f_geometry_column"));
+        assertEquals(2, rs.getInt("coord_dimension"));
+        assertEquals(4326, rs.getInt("srid"));
+        assertEquals("POINT", rs.getString("type"));
+        
+        rs.close();
+        st.close();
+
+    }
     @Test
     public void testDropGeometryColumn() throws Exception {
         testAddGeometryColumn();
