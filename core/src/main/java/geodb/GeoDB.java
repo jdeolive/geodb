@@ -24,6 +24,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.IntersectionMatrix;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.InputStreamInStream;
 import com.vividsolutions.jts.io.OutputStreamOutStream;
@@ -881,6 +882,129 @@ public class GeoDB {
     ST_Union - Returns a geometry that represents the point set union of the Geometries.
     */
     
+	public static Integer ST_Dimension(byte[] wkb) {
+		Geometry geometry = gFromWKB(wkb);
+		if (geometry != null) {
+			return geometry.getDimension();
+		}
+		return null;
+	}
+
+	public static byte[] ST_Boundary(byte[] wkb) {
+		Geometry geometry = gFromWKB(wkb);
+		if (geometry != null) {
+			Geometry boundary = geometry.getBoundary();
+			if (boundary != null) {
+				return gToWKB(boundary);
+			}
+		}
+		return null;
+	}
+
+	public static boolean ST_Relate(byte[] wkb1, byte[] wkb2,
+			String intersectionPattern) {
+		Geometry geometry1 = gFromWKB(wkb1);
+		Geometry geometry2 = gFromWKB(wkb1);
+		if (geometry1 != null && geometry2 != null) {
+			return geometry1.relate(geometry2, intersectionPattern);
+		}
+		return false;
+	}
+
+	public static String ST_Relate(byte[] wkb1, byte[] wkb2) {
+		Geometry geometry1 = gFromWKB(wkb1);
+		Geometry geometry2 = gFromWKB(wkb1);
+		if (geometry1 != null && geometry2 != null) {
+			IntersectionMatrix result = geometry1.relate(geometry2);
+			return result.toString();
+		}
+		return null;
+	}
+
+	public static byte[] ST_ConvexHull(byte[] wkb) {
+		Geometry geometry = gFromWKB(wkb);
+		if (geometry != null) {
+			Geometry boundary = geometry.convexHull();
+			if (boundary != null) {
+				return gToWKB(boundary);
+			}
+		}
+		return null;
+	}
+
+	public static byte[] ST_Difference(byte[] wkb1, byte[] wkb2) {
+		if (wkb1 == null) {
+			return null;
+		}
+		if (wkb2 == null) {
+			return wkb1;
+		}
+		Geometry geometry1 = gFromWKB(wkb1);
+		Geometry geometry2 = gFromWKB(wkb2);
+		if (geometry1 == null) {
+			return null;
+		}
+		if (geometry2 == null) {
+			return wkb1;
+		}
+	
+		return gToWKB(geometry1.difference(geometry2));
+	}
+
+	public static byte[] ST_Intersection(byte[] wkb1, byte[] wkb2) {
+		if (wkb1 == null || wkb2 == null) {
+			return null;
+		}
+		Geometry geometry1 = gFromWKB(wkb1);
+		Geometry geometry2 = gFromWKB(wkb2);
+		if (geometry1 == null || geometry2 == null) {
+			return null;
+		}
+	
+		return gToWKB(geometry1.intersection(geometry2));
+	}
+
+	public static byte[] ST_SymDifference(byte[] wkb1, byte[] wkb2) {
+		if (wkb1 == null) {
+			return wkb2;
+		}
+		if (wkb2 == null) {
+			return wkb1;
+		}
+		Geometry geometry1 = gFromWKB(wkb1);
+		Geometry geometry2 = gFromWKB(wkb2);
+		if (geometry1 == null) {
+			return gToWKB(geometry2);
+		}
+		if (geometry2 == null) {
+			return gToWKB(geometry1);
+		}
+	
+		return gToWKB(geometry1.symDifference(geometry2));
+	}
+
+	public static byte[] ST_Union(byte[] wkb1, byte[] wkb2) {
+		if (wkb1 == null) {
+			return wkb2;
+		}
+		if (wkb2 == null) {
+			return wkb1;
+		}
+		Geometry geometry1 = gFromWKB(wkb1);
+		Geometry geometry2 = gFromWKB(wkb2);
+		if (geometry1 == null) {
+			return gToWKB(geometry2);
+		}
+		if (geometry2 == null) {
+			return gToWKB(geometry1);
+		}
+	
+		return gToWKB(geometry1.union(geometry2));
+	}    
+    
+    
+    
+    
     //
     // Miscellaneous Functions
     //
@@ -1425,4 +1549,6 @@ public class GeoDB {
         }
         return "ENFORCE_GEOTYPE_" + name;
     }
+
+
 }
