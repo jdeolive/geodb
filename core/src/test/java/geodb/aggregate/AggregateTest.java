@@ -52,7 +52,7 @@ public class AggregateTest extends GeoDBTestSupport {
     @Test
     public void test_union() throws Exception {
         Statement st = cx.createStatement();
-        ResultSet rs = st.executeQuery("select st_union(geom) from spatial");
+        ResultSet rs = st.executeQuery("select tt_union(geom) from spatial");
         rs.next();
         InputStream binaryStream = rs.getBinaryStream(1);
         Geometry geometry = new WKBReader().read(new InputStreamInStream(binaryStream));
