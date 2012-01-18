@@ -16,13 +16,13 @@ public class GeoDBTestSupport {
     @BeforeClass
     @AfterClass
     public static void destroyDB() throws Exception {
-        DeleteDbFiles.execute(".", "geodb", true);
+        DeleteDbFiles.execute("target", "geodb", true);
     }
     
     @Before
     public void setUp() throws Exception {
         Class.forName("org.h2.Driver");
-        cx = DriverManager.getConnection("jdbc:h2:geodb");
+        cx = DriverManager.getConnection("jdbc:h2:target/geodb");
     }
     
     @After
