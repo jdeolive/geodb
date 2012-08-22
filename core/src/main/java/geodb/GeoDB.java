@@ -566,6 +566,26 @@ public class GeoDB {
     ST_Zmflag - Returns ZM (dimension semantic) flag of the geometries as a small int. Values are: 0=2d, 1=3dm, 2=3dz, 3=4d
     */
     
+    /**
+     * Returns the x coordinate from the Geometry.
+     * @param wkb The WKB Geometry
+     * @return The x coordinate
+     */
+    public static double ST_X(byte[] wkb) {
+        Geometry g = gFromWKB(wkb);
+        return g.getCoordinate().x;
+    }
+    
+    /**
+     * Returns the y coordinate from the Geometry.
+     * @param wkb The WKB Geometry
+     * @return The y coordinate
+     */
+    public static double ST_Y(byte[] wkb) {
+        Geometry g = gFromWKB(wkb);
+        return g.getCoordinate().y;
+    }
+    
     //
     // Geometry editors
     //

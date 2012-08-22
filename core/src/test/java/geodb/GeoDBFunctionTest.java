@@ -161,4 +161,24 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
         assertEquals(dist, result, 0.00001);
         
     }
+    
+    @Test
+    public void testST_X() throws Exception {
+        Statement st = cx.createStatement();
+        ResultSet rs = st.executeQuery(
+            "CALL ST_X(ST_GeomFromText('POINT(12123.343 79586.125)',-1));");
+        rs.next();
+        double result = rs.getDouble(1);
+        assertEquals(12123.343, result, 0.00001);
+    }
+    
+    @Test
+    public void testST_Y() throws Exception {
+        Statement st = cx.createStatement();
+        ResultSet rs = st.executeQuery(
+            "CALL ST_Y(ST_GeomFromText('POINT(12123.343 79586.125)',-1));");
+        rs.next();
+        double result = rs.getDouble(1);
+        assertEquals(79586.125, result, 0.00001);
+    }
 }
