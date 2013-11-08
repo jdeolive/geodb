@@ -47,7 +47,7 @@ public class GeoDB {
     static {
         boolean pre = false;
         try {
-            new WKBWriter(2, true);
+            new WKBWriter(3, true);
         }
         catch(NoSuchMethodError e) {
             //means they are using an older verison of jts, fallback to old constructor
@@ -58,7 +58,7 @@ public class GeoDB {
     }
 
     static final WKBWriter wkbwriter() {
-        return PRE_JTS12 ? new WKBWriter(2) : new WKBWriter(2, true);
+        return PRE_JTS12 ? new WKBWriter(3) : new WKBWriter(3, true);
     }
     
     static final WKBReader wkbreader() {
