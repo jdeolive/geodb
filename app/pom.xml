@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.opengeo</groupId>
     <artifactId>geodb-parent</artifactId>
-    <version>0.7</version>
+    <version>0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.opengeo</groupId>
