@@ -4,9 +4,9 @@ GeoDB is a spatial extension of [H2](http://h2database.com), the Java SQL databa
 
 # Quickstart
 
-* Download [GeoDB](http://files.opengeo.org/geodb/geodb-0.7-app.zip)
-* Unzip the `geodb-0.7-app.zip` file
-* Update the `PATH` environment variable to include `geodb-0.7/bin`
+* Download [GeoDB](http://ares.boundlessgeo.com/geodb/geodb-0.8-app.zip)
+* Unzip the `geodb-0.8-app.zip` file
+* Update the `PATH` environment variable to include `geodb-0.8/bin`
 * Run the @geodb@ command:
 
         % geodb foo
