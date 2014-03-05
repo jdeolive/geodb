@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -18,16 +19,24 @@ import com.vividsolutions.jts.io.InputStreamInStream;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 
-public class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
+public abstract class TestGeoDBExtraFunctions extends GeoDBTestSupport {
+    /**
+     * The name of the test database.
+     * 
+     * @return the database name.
+     */
+    public static String getDatabaseName() {
+        return "geodb_extra_functions";
+    }
 
     @Before
     public void setup() throws Exception {
-        super.setUp();
+        Connection cx = getConnection();
         Statement st = cx.createStatement();
-        st.execute("DROP TABLE IF EXISTS _GEODB");
-        st.execute("DROP TABLE IF EXISTS spatial");
-        st.execute("DROP TABLE IF EXISTS spatial_hatbox");
-        st.execute("DROP TABLE IF EXISTS noindex");
+        dropTable(st, GeoDB.getGeoDBTableName(cx));
+        dropTable(st, "spatial");
+        dropTable(st, "spatial_hatbox");
+        dropTable(st, "noindex");
         st.close();
         GeoDB.InitGeoDB(cx);
     }
@@ -36,6 +45,7 @@ public class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
     @Test
     public void testDimension() throws SQLException, IOException, ParseException {
     	insertThreePoints();
+        Connection cx = getConnection();
     	Statement st = cx.createStatement();
         ResultSet rs = st.executeQuery("select st_dimension(geom) from spatial");
         rs.next();
@@ -47,6 +57,7 @@ public class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
     @Test
     public void testBoundary() throws SQLException, IOException, ParseException {
         insertThreePoints();
+        Connection cx = getConnection();
     	Statement st = cx.createStatement();
         ResultSet rs = st.executeQuery("select st_boundary(geom) from spatial");
         rs.next();
@@ -58,8 +69,9 @@ public class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
 
     @Test
     public void testRelate() throws SQLException, IOException, ParseException {
+        Connection cx = getConnection();
     	Statement st = cx.createStatement();
-        ResultSet rs = st.executeQuery("SELECT ST_Relate(ST_GeomFromText('POINT(1 2)',4326), ST_Buffer(ST_GeomFromText('POINT(1 2)',4326),2))");
+        ResultSet rs = st.executeQuery("VALUES ST_Relate(ST_GeomFromText('POINT(1 2)',4326), ST_Buffer(ST_GeomFromText('POINT(1 2)',4326),2))");
         rs.next();
         String result = rs.getString(1);
         st.close();
@@ -68,19 +80,9 @@ public class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
     }
 
     @Test
-    public void testRelateWithMatrix() throws SQLException, IOException, ParseException {
-    	Statement st = cx.createStatement();
-        ResultSet rs = st.executeQuery("SELECT ST_Relate(ST_GeomFromText('POINT(1 2)',4326), ST_Buffer(ST_GeomFromText('POINT(1 2)',4326),2), '0FFFFFFF2')");
-        rs.next();
-        boolean result = rs.getBoolean(1);
-        st.close();
-    	//I don't really understand this function so not sure if the result is correct. At least the result of both tests seems consistent.
-        assertTrue(result);
-    }
-
-    @Test
     public void testConvexHull() throws SQLException, IOException, ParseException {
     	insertThreePoints();
+        Connection cx = getConnection();
     	Statement st = cx.createStatement();
         ResultSet rs = st.executeQuery("select st_convexhull(geom) from spatial");
         rs.next();
@@ -93,8 +95,9 @@ public class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
     
     @Test
     public void testDifference() throws SQLException, IOException, ParseException {
+        Connection cx = getConnection();
     	Statement st = cx.createStatement();
-        ResultSet rs = st.executeQuery("select ST_Difference(" +
+        ResultSet rs = st.executeQuery("VALUES ST_Difference(" +
         													 "ST_GeomFromText('POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))', 4326)," +
         													 "ST_GeomFromText('POLYGON((5 5, 5 10, 10 10, 10 5, 5 5))', 4326))");
         rs.next();
@@ -106,8 +109,9 @@ public class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
     
     @Test
     public void testIntersection() throws SQLException, IOException, ParseException {
+        Connection cx = getConnection();
     	Statement st = cx.createStatement();
-        ResultSet rs = st.executeQuery("select ST_Intersection(" +
+        ResultSet rs = st.executeQuery("VALUES ST_Intersection(" +
 				 "ST_GeomFromText('POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))', 4326)," +
 				 "ST_GeomFromText('POLYGON((5 5, 5 10, 10 10, 10 5, 5 5))', 4326))");
         rs.next();
@@ -119,8 +123,9 @@ public class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
 
     @Test
     public void testSymdifference() throws SQLException, IOException, ParseException {
+        Connection cx = getConnection();
     	Statement st = cx.createStatement();
-        ResultSet rs = st.executeQuery("select ST_SymDifference(" +
+        ResultSet rs = st.executeQuery("VALUES ST_SymDifference(" +
 				 "ST_GeomFromText('POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))', 4326)," +
 				 "ST_GeomFromText('POLYGON((5 5, 5 15, 10 15, 10 5, 5 5))', 4326))");
         rs.next();
@@ -133,8 +138,9 @@ public class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
 
     @Test
     public void testUnion() throws SQLException, IOException, ParseException {
+        Connection cx = getConnection();
     	Statement st = cx.createStatement();
-        ResultSet rs = st.executeQuery("select ST_Union(" +
+        ResultSet rs = st.executeQuery("VALUES ST_Union(" +
 				 "ST_GeomFromText('POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))', 4326)," +
 				 "ST_GeomFromText('POLYGON((5 5, 5 15, 10 15, 10 5, 5 5))', 4326))");
         rs.next();
@@ -145,14 +151,12 @@ public class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
     }
 
     private void insertThreePoints() throws SQLException{
+        Connection cx = getConnection();
     	Statement st = cx.createStatement();
-        st.execute("CREATE TABLE spatial (id INT AUTO_INCREMENT PRIMARY KEY, geom BLOB)");
+    	createTable(st, "spatial", "id", "geom");
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(0 0)', 4326))");
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(1 1)', 4326))");
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(2 2)', 4326))");
         st.close();
     }
-    
-    
-
 }

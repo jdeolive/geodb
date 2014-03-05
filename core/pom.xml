@@ -5,10 +5,9 @@
   <parent>
     <groupId>org.opengeo</groupId>
     <artifactId>geodb-parent</artifactId>
-    <version>0-SNAPSHOT</version>
+    <version>0.9-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.opengeo</groupId>
   <artifactId>geodb</artifactId>
   <packaging>jar</packaging>
   <name>GeoDB Core</name>
@@ -35,6 +34,18 @@
       <version>4.7</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>10.10.1.1</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -45,6 +56,30 @@
           <source>1.5</source>
           <target>1.5</target>
         </configuration>
+      </plugin>
+      <plugin>
+         <artifactId>maven-surefire-plugin</artifactId>
+         <configuration>
+            <systemPropertyVariables>
+               <database.driver>org.h2.Driver</database.driver>
+               <database.connection>jdbc:h2:target/geodb</database.connection>
+            </systemPropertyVariables>
+         </configuration>
+         <executions>
+            <execution>
+               <id>Test Derby</id>
+               <phase>test</phase>
+               <goals>
+                  <goal>test</goal>
+               </goals>
+               <configuration>
+                  <systemPropertyVariables>
+                     <database.driver>org.apache.derby.jdbc.EmbeddedDriver</database.driver>
+                     <database.connection>jdbc:derby:directory:target/geodb;create=true</database.connection>
+                  </systemPropertyVariables>
+               </configuration>
+            </execution>
+         </executions>
       </plugin>
       <plugin>
         <artifactId>maven-source-plugin</artifactId>

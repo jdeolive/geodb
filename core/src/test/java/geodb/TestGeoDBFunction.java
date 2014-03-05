@@ -1,10 +1,8 @@
 package geodb;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -15,20 +13,27 @@ import org.junit.Test;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTReader;
 
-public class GeoDBFunctionTest extends GeoDBTestSupport {
+public abstract class TestGeoDBFunction extends GeoDBTestSupport {
+    /**
+     * The name of the test database.
+     * 
+     * @return the database name.
+     */
+    public static String getDatabaseName() {
+        return "geodb_function";
+    }
 
     @Before
     public void setUp() throws Exception {
-        super.setUp();
-        
+        Connection cx = getConnection();
         GeoDB.InitGeoDB(cx);
         
         Statement st = cx.createStatement();
-        st.execute("DROP TABLE IF EXISTS spatial");
-        st.execute("DROP TABLE IF EXISTS spatial2");
+        dropTable(st, "spatial");
+        dropTable(st, "spatial2");
         st.execute("DELETE FROM geometry_columns");
-        
-        st.execute("CREATE TABLE spatial (id INT AUTO_INCREMENT PRIMARY KEY, geom BLOB)");
+
+        createTable(st, "spatial", "id", "geom");
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(0 0)', 4326))");
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(1 1)', 4326))");
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(2 2)', 4326))");
@@ -37,8 +42,9 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
     
     @Test
     public void testSRID() throws Exception {
+        Connection cx = getConnection();
         Statement st = cx.createStatement();
-        ResultSet rs = st.executeQuery("SELECT ST_SRID(geom) FROM spatial LIMIT 1");
+        ResultSet rs = st.executeQuery("SELECT ST_SRID(geom) FROM spatial " + getTestUtils().getLimitClauseSql(1));
         rs.next();
         assertEquals(4326, rs.getInt(1));
         
@@ -48,6 +54,7 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
     
     @Test
     public void testAddGeometryColumn() throws Exception {
+        Connection cx = getConnection();
         Statement st = cx.createStatement();
         
         st.execute("CALL AddGeometryColumn(NULL,'SPATIAL', 'FOO', -1, 'POINT', 2)");
@@ -74,8 +81,9 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
 
     @Test
     public void testAddGeometryColumn2() throws Exception {
+        Connection cx = getConnection();
         Statement st = cx.createStatement();
-        st.execute("CREATE TABLE spatial2 (id INT AUTO_INCREMENT PRIMARY KEY)");
+        createTable(st, "spatial2", "id", null);
         st.execute("CALL AddGeometryColumn(null, 'SPATIAL2', 'GEOM', 4326, 'POINT', 2)");
 
         ResultSet rs = st.executeQuery("SELECT * from geometry_columns");
@@ -98,12 +106,13 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
         
         rs.close();
         st.close();
-
     }
+
     @Test
     public void testDropGeometryColumn() throws Exception {
         testAddGeometryColumn();
         
+        Connection cx = getConnection();
         Statement st = cx.createStatement();
         st.executeQuery("SELECT foo FROM spatial");
         
@@ -121,6 +130,7 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
     
     @Test
     public void testDropGeometryColumns() throws Exception {
+        Connection cx = getConnection();
         Statement st = cx.createStatement();
         
         st.execute("CALL AddGeometryColumn(NULL,'SPATIAL', 'FOO', -1, 'POINT', 2)");
@@ -152,10 +162,11 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
         Geometry g2 = wkt.read("POINT(90711.7123 56791.89)");
         double dist = g1.distance(g2);
         
+        Connection cx = getConnection();
         Statement st = cx.createStatement();
         ResultSet rs = st.executeQuery(
-            "CALL ST_Distance(ST_GeomFromText('POINT(12123.343 79586.125)',-1), " +
-                            " ST_GeomFromText('POINT(90711.7123 56791.89)',-1));");
+            "VALUES ST_Distance(ST_GeomFromText('POINT(12123.343 79586.125)',-1), " +
+                            " ST_GeomFromText('POINT(90711.7123 56791.89)',-1))");
         rs.next();
         double result = rs.getDouble(1);
         assertEquals(dist, result, 0.00001);
@@ -164,9 +175,10 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
     
     @Test
     public void testST_X() throws Exception {
+        Connection cx = getConnection();
         Statement st = cx.createStatement();
         ResultSet rs = st.executeQuery(
-            "CALL ST_X(ST_GeomFromText('POINT(12123.343 79586.125)',-1));");
+            "VALUES ST_X(ST_GeomFromText('POINT(12123.343 79586.125)',-1))");
         rs.next();
         double result = rs.getDouble(1);
         assertEquals(12123.343, result, 0.00001);
@@ -174,9 +186,10 @@ public class GeoDBFunctionTest extends GeoDBTestSupport {
     
     @Test
     public void testST_Y() throws Exception {
+        Connection cx = getConnection();
         Statement st = cx.createStatement();
         ResultSet rs = st.executeQuery(
-            "CALL ST_Y(ST_GeomFromText('POINT(12123.343 79586.125)',-1));");
+            "VALUES ST_Y(ST_GeomFromText('POINT(12123.343 79586.125)',-1))");
         rs.next();
         double result = rs.getDouble(1);
         assertEquals(79586.125, result, 0.00001);
