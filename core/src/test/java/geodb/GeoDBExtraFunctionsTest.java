@@ -1,9 +1,11 @@
 package geodb;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,6 +21,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.InputStreamInStream;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
+import com.vividsolutions.jts.io.WKTReader;
 
 public abstract class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
     /**
@@ -161,6 +164,71 @@ public abstract class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
     }
 
     @Test
+    public void testEmpty() throws SQLException, IOException, ParseException {
+        testBooleanPredicate("ST_IsEmpty",
+                "GEOMETRYCOLLECTION EMPTY",
+                "POLYGON((1 2, 3 4, 5 6, 1 2))");
+    }
+
+    @Test
+    public void testSimple() throws SQLException, IOException, ParseException {
+        testBooleanPredicate("ST_IsSimple",
+                "POLYGON((1 2, 3 4, 5 6, 1 2))",
+                "LINESTRING(1 1,2 2,2 3.5,1 3,1 2,2 1)");
+    }
+
+    @Test
+    public void testValid() throws SQLException, IOException, ParseException {
+        testBooleanPredicate("ST_IsValid",
+                "LINESTRING(0 0, 1 1)",
+                "POLYGON((0 0, 1 1, 1 2, 1 1, 0 0))");
+    }
+
+    /**
+     * Tests a predicate that takes one geometry as an argument and returns a
+     * boolean value.
+     * 
+     * @param predicate
+     *            the predicate to test.
+     * @param wktPass
+     *            the WKT that should pass.
+     * @param wktFail
+     *            the WKT that should fail.
+     * @throws SQLException
+     *             if unable to run the test in the database.
+     */
+    private void testBooleanPredicate(final String predicate,
+            final String wktPass, final String wktFail) throws SQLException {
+        Connection cx = getConnection();
+        Statement st = cx.createStatement();
+
+        // Test the passing condition.
+        ResultSet rs = st.executeQuery("VALUES " + predicate + "("
+                + "ST_GeomFromText('" + wktPass + "', 4326))");
+        rs.next();
+        boolean result = rs.getBoolean(1);
+        rs.close();
+        assertTrue(result);
+
+        // Test the failing condition.
+        rs = st.executeQuery("VALUES " + predicate + "(" + "ST_GeomFromText('"
+                + wktFail + "', 4326))");
+        rs.next();
+        result = rs.getBoolean(1);
+        rs.close();
+        assertFalse(result);
+
+        // Test the null argument.
+        rs = st.executeQuery("VALUES " + predicate + "(null)");
+        rs.next();
+        result = rs.getBoolean(1);
+        rs.close();
+        assertFalse(result);
+
+        st.close();
+    }
+
+    @Test
     public void testContains() throws SQLException, IOException, ParseException {
         testBooleanPredicate("ST_Contains",
                 "POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))", 
@@ -264,8 +332,8 @@ public abstract class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
         assertFalse(result);
 
         // Test the first null.
-        rs = st.executeQuery("VALUES " + predicate + "(null," + "ST_GeomFromText('" + wktBFail
-                + "', 4326))");
+        rs = st.executeQuery("VALUES " + predicate + "(null,"
+                + "ST_GeomFromText('" + wktBPass + "', 4326))");
         rs.next();
         result = rs.getBoolean(1);
         rs.close();
@@ -278,6 +346,215 @@ public abstract class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
         result = rs.getBoolean(1);
         rs.close();
         assertFalse(result);
+
+        st.close();
+    }
+
+    @Test
+    public void testDWithin() throws SQLException, IOException, ParseException {
+        final String predicate = "ST_DWithin";
+        final String wktA = "POINT(0 0)";
+        final String wktBPass = "POINT(7 7)";
+        final String wktBFail = "POINT(8 8)";
+
+        Connection cx = getConnection();
+        Statement st = cx.createStatement();
+
+        // Test the passing condition.
+        ResultSet rs = st.executeQuery("VALUES " + predicate + "("
+                + "ST_GeomFromText('" + wktA + "', 4326),"
+                + "ST_GeomFromText('" + wktBPass + "', 4326), 10)");
+        rs.next();
+        boolean result = rs.getBoolean(1);
+        rs.close();
+        assertTrue(result);
+
+        // Test the failing condition.
+        rs = st.executeQuery("VALUES " + predicate + "(" + "ST_GeomFromText('"
+                + wktA + "', 4326)," + "ST_GeomFromText('" + wktBFail
+                + "', 4326), 10)");
+        rs.next();
+        result = rs.getBoolean(1);
+        rs.close();
+        assertFalse(result);
+
+        // Test the first null.
+        rs = st.executeQuery("VALUES " + predicate + "(null,"
+                + "ST_GeomFromText('" + wktBPass + "', 4326), 10)");
+        rs.next();
+        result = rs.getBoolean(1);
+        rs.close();
+        assertFalse(result);
+
+        // Test the second null.
+        rs = st.executeQuery("VALUES " + predicate + "(" + "ST_GeomFromText('"
+                + wktA + "', 4326), null, 10)");
+        rs.next();
+        result = rs.getBoolean(1);
+        rs.close();
+        assertFalse(result);
+
+        st.close();
+    }
+
+    @Test
+    public void testWKB() throws SQLException, IOException, ParseException {
+        String wkt = "POLYGON((743238 2967416,743238 2967450, 743265 2967450,743265.625 2967416,743238 2967416))";
+        int srid = 2249;
+        Geometry original = new WKTReader().read(wkt);
+        original.setSRID(srid);
+        Connection cx = getConnection();
+        Statement st = cx.createStatement();
+
+        ResultSet rs = st
+                .executeQuery("VALUES ST_GeomFromWKB(ST_AsBinary(ST_GeomFromText('"
+                        + wkt + "', " + srid + ")), " + srid + ")");
+        rs.next();
+        InputStream binaryStream = rs.getBinaryStream(1);
+        Geometry geometry = new WKBReader().read(new InputStreamInStream(
+                binaryStream));
+        binaryStream.close();
+        rs.close();
+        assertEquals(original, geometry);
+        assertEquals(original.getSRID(), geometry.getSRID());
+
+        rs = st.executeQuery("VALUES ST_AsBinary(null)");
+        rs.next();
+        binaryStream = rs.getBinaryStream(1);
+        rs.close();
+        assertNull(binaryStream);
+
+        rs = st.executeQuery("VALUES ST_GeomFromWKB(null, " + srid + ")");
+        rs.next();
+        binaryStream = rs.getBinaryStream(1);
+        rs.close();
+        assertNull(binaryStream);
+
+        st.close();
+    }
+
+    @Test
+    public void testEWKB() throws SQLException, IOException, ParseException {
+        String wkt = "POLYGON((743238 2967416,743238 2967450, 743265 2967450,743265.625 2967416,743238 2967416))";
+        int srid = 2249;
+        Geometry original = new WKTReader().read(wkt);
+        original.setSRID(srid);
+        Connection cx = getConnection();
+        Statement st = cx.createStatement();
+
+        ResultSet rs = st
+                .executeQuery("VALUES ST_GeomFromEWKB(ST_AsEWKB(ST_GeomFromText('"
+                        + wkt + "', " + srid + ")))");
+        rs.next();
+        InputStream binaryStream = rs.getBinaryStream(1);
+        Geometry geometry = new WKBReader().read(new InputStreamInStream(
+                binaryStream));
+        binaryStream.close();
+        rs.close();
+        assertEquals(original, geometry);
+        assertEquals(original.getSRID(), geometry.getSRID());
+
+        rs = st.executeQuery("VALUES ST_AsEWKB(null)");
+        rs.next();
+        binaryStream = rs.getBinaryStream(1);
+        rs.close();
+        assertNull(binaryStream);
+
+        rs = st.executeQuery("VALUES ST_GeomFromEWKB(null)");
+        rs.next();
+        binaryStream = rs.getBinaryStream(1);
+        rs.close();
+        assertNull(binaryStream);
+
+        st.close();
+    }
+
+    @Test
+    public void testWKT() throws SQLException, IOException, ParseException {
+        String wkt = "POLYGON((743238 2967416,743238 2967450, 743265 2967450,743265.625 2967416,743238 2967416))";
+        int srid = 2249;
+        Geometry original = new WKTReader().read(wkt);
+        original.setSRID(srid);
+        Connection cx = getConnection();
+        Statement st = cx.createStatement();
+
+        // Ensure that the EWKT matches the expected pattern.
+        ResultSet rs = st.executeQuery("VALUES ST_AsText(ST_GeomFromText('"
+                + wkt + "', " + srid + "))");
+        rs.next();
+        String ewkt = rs.getString(1);
+        rs.close();
+        String pattern = "^POLYGON[\\s]*[(][(][\\d\\s.,]+[)][)]$";
+        assertTrue("'" + ewkt + "' does not match the pattern " + pattern,
+                ewkt.matches(pattern));
+
+        rs = st.executeQuery("VALUES ST_GeomFromText(ST_AsText(ST_GeomFromText('"
+                + wkt + "', " + srid + ")), " + srid + ")");
+        rs.next();
+        InputStream binaryStream = rs.getBinaryStream(1);
+        Geometry geometry = new WKBReader().read(new InputStreamInStream(
+                binaryStream));
+        binaryStream.close();
+        rs.close();
+        assertEquals(original, geometry);
+        assertEquals(original.getSRID(), geometry.getSRID());
+
+        rs = st.executeQuery("VALUES ST_AsText(null)");
+        rs.next();
+        wkt = rs.getString(1);
+        rs.close();
+        assertNull(wkt);
+
+        rs = st.executeQuery("VALUES ST_GeomFromText(null, " + srid + ")");
+        rs.next();
+        binaryStream = rs.getBinaryStream(1);
+        rs.close();
+        assertNull(binaryStream);
+
+        st.close();
+    }
+
+    @Test
+    public void testEWKT() throws SQLException, IOException, ParseException {
+        String wkt = "POLYGON((743238 2967416,743238 2967450, 743265 2967450,743265.625 2967416,743238 2967416))";
+        int srid = 2249;
+        Geometry original = new WKTReader().read(wkt);
+        original.setSRID(srid);
+        Connection cx = getConnection();
+        Statement st = cx.createStatement();
+
+        // Ensure that the EWKT matches the expected pattern.
+        ResultSet rs = st.executeQuery("VALUES ST_AsEWKT(ST_GeomFromText('"
+                + wkt + "', " + srid + "))");
+        rs.next();
+        String ewkt = rs.getString(1);
+        rs.close();
+        String pattern = "^SRID=" + srid
+                + ";POLYGON[\\s]*[(][(][\\d\\s.,]+[)][)]$";
+        assertTrue("'" + ewkt + "' does not match the pattern " + pattern,
+                ewkt.matches(pattern));
+
+        rs = st.executeQuery("VALUES ST_GeomFromEWKT(ST_AsEWKT(ST_GeomFromText('"
+                + wkt + "', " + srid + ")))");
+        rs.next();
+        InputStream binaryStream = rs.getBinaryStream(1);
+        Geometry geometry = new WKBReader().read(new InputStreamInStream(
+                binaryStream));
+        rs.close();
+        assertEquals(original, geometry);
+        assertEquals(original.getSRID(), geometry.getSRID());
+
+        rs = st.executeQuery("VALUES ST_AsEWKT(null)");
+        rs.next();
+        ewkt = rs.getString(1);
+        rs.close();
+        assertNull(ewkt);
+
+        rs = st.executeQuery("VALUES ST_GeomFromEWKT(null)");
+        rs.next();
+        binaryStream = rs.getBinaryStream(1);
+        rs.close();
+        assertNull(binaryStream);
 
         st.close();
     }

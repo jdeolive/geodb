@@ -446,9 +446,20 @@ public class GeoDB {
         Geometry g = gFromWKB(wkb);
         return gToEWKT(g);
     }
-    
+
     /**
-     * Return the Well-Known Binary (WKB) representation of the geometry with SRID meta data.
+     * Return the Well-Known Binary (WKB) representation of the geometry without SRID meta data.
+     */
+    public static byte[] ST_AsBinary( byte[] wkb ) {
+        if (wkb == null) {
+            return null;
+        }
+
+        return wkb;
+    }
+
+    /**
+     * Return the Extended Well-Known Binary (WKB) representation of the geometry with SRID meta data.
      */
     public static byte[] ST_AsEWKB( byte[] wkb ) {
         return wkb;
@@ -488,6 +499,10 @@ public class GeoDB {
      *  Return a specified ST_Geometry value from Extended Well-Known Binary representation (EWKB).
      */
     public static byte[] ST_GeomFromEWKB (byte[] wkb) {
+        if (wkb == null) {
+            return null;
+        }
+
         return gToWKB(gFromWKB(wkb));
     }
     

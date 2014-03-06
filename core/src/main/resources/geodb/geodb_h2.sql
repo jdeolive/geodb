@@ -10,6 +10,7 @@ CREATE ALIAS ST_AsEWKB FOR "geodb.GeoDB.ST_AsEWKB";
 CREATE ALIAS ST_AsEWKT FOR "geodb.GeoDB.ST_AsEWKT";
 CREATE ALIAS ST_AsHexEWKB FOR "geodb.GeoDB.ST_AsHexEWKB";
 CREATE ALIAS ST_AsText FOR "geodb.GeoDB.ST_AsText";
+CREATE ALIAS ST_AsBinary FOR "geodb.GeoDB.ST_AsBinary";
 CREATE ALIAS ST_BBOX FOR "geodb.GeoDB.ST_BBox";
 CREATE ALIAS ST_Boundary FOR "geodb.GeoDB.ST_Boundary";
 CREATE ALIAS ST_Buffer FOR "geodb.GeoDB.ST_Buffer"; 

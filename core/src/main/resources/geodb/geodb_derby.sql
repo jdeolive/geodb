@@ -50,62 +50,63 @@ create procedure DropSpatialIndex (
     parameter style java
     modifies sql data;
 
-# TODO: JUnit
-create function EnvelopeAsText (
+CREATE FUNCTION EnvelopeAsText (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS VARCHAR(32672)
     language java
     external name 'geodb.GeoDB.EnvelopeAsText'
     parameter style java;
 
-create function GeometryType (
+CREATE FUNCTION GeometryType (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS VARCHAR(32672)
     language java
     external name 'geodb.GeoDB.GeometryType'
     parameter style java;
 
-# TODO: JUnit
-create function ST_Area (
+CREATE FUNCTION ST_Area (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS DOUBLE PRECISION
     language java
     external name 'geodb.GeoDB.ST_Area'
     parameter style java;
 
-# TODO: JUnit
-create function ST_AsEWKB (
+CREATE FUNCTION ST_AsEWKB (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_AsEWKB'
     parameter style java;
 
-# TODO: JUnit
-create function ST_AsEWKT (
+CREATE FUNCTION ST_AsEWKT (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS VARCHAR(32672)
     language java
     external name 'geodb.GeoDB.ST_AsEWKT'
     parameter style java;
 
-create function ST_AsHexEWKB (
+CREATE FUNCTION ST_AsHexEWKB (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS VARCHAR(32672)
     language java
     external name 'geodb.GeoDB.ST_AsHexEWKB'
     parameter style java;
 
-# TODO: JUnit
-create function ST_AsText (
+CREATE FUNCTION ST_AsText (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS VARCHAR(32672)
     language java
     external name 'geodb.GeoDB.ST_AsText'
     parameter style java;
 
-# TODO: JUnit
-create function ST_BBox (
+CREATE FUNCTION ST_AsBinary (
+    SPATIAL_WKB LONG VARCHAR FOR BIT DATA
+) RETURNS LONG VARCHAR FOR BIT DATA
+    language java
+    external name 'geodb.GeoDB.ST_AsBinary'
+    parameter style java;
+
+CREATE FUNCTION ST_BBox (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
@@ -113,14 +114,14 @@ create function ST_BBox (
     external name 'geodb.GeoDB.ST_BBox'
     parameter style java;
 
-create function ST_Boundary (
+CREATE FUNCTION ST_Boundary (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_Boundary'
     parameter style java;
 
-create function ST_Buffer (
+CREATE FUNCTION ST_Buffer (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA,
     SPATIAL_DISTANCE DOUBLE PRECISION
 ) RETURNS LONG VARCHAR FOR BIT DATA
@@ -128,15 +129,14 @@ create function ST_Buffer (
     external name 'geodb.GeoDB.ST_Buffer'
     parameter style java;
 
-# TODO: JUnit
-create function ST_Centroid (
+CREATE FUNCTION ST_Centroid (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_Centroid'
     parameter style java;
 
-create function ST_Crosses (
+CREATE FUNCTION ST_Crosses (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
@@ -144,7 +144,7 @@ create function ST_Crosses (
     external name 'geodb.GeoDB.ST_Crosses'
     parameter style java;
 
-create function ST_Contains (
+CREATE FUNCTION ST_Contains (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
@@ -152,24 +152,23 @@ create function ST_Contains (
     external name 'geodb.GeoDB.ST_Contains'
     parameter style java;
 
-create function ST_ConvexHull (
+CREATE FUNCTION ST_ConvexHull (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_ConvexHull'
     parameter style java;
 
-# TODO: JUnit
-create function ST_DWithin (
+CREATE FUNCTION ST_DWithin (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA,
-    SPATIAL_DISTANCE DOUBLE PREISION
+    SPATIAL_DISTANCE DOUBLE PRECISION
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_DWithin'
     parameter style java;
 
-create function ST_Disjoint (
+CREATE FUNCTION ST_Disjoint (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
@@ -177,7 +176,7 @@ create function ST_Disjoint (
     external name 'geodb.GeoDB.ST_Disjoint'
     parameter style java;
 
-create function ST_Distance (
+CREATE FUNCTION ST_Distance (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS DOUBLE PRECISION
@@ -185,7 +184,7 @@ create function ST_Distance (
     external name 'geodb.GeoDB.ST_Distance'
     parameter style java;
 
-create function ST_Difference (
+CREATE FUNCTION ST_Difference (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS LONG VARCHAR FOR BIT DATA
@@ -193,23 +192,22 @@ create function ST_Difference (
     external name 'geodb.GeoDB.ST_Difference'
     parameter style java;
 
-create function ST_Dimension (
+CREATE FUNCTION ST_Dimension (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS INT
     language java
     external name 'geodb.GeoDB.ST_Dimension'
     parameter style java;
 
-# TODO: JUnit
 # TODO: Is this the correct return type?
-create function ST_Envelope (
+CREATE FUNCTION ST_Envelope (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS VARCHAR(32672)
     language java
     external name 'geodb.GeoDB.ST_Envelope'
     parameter style java;
 
-create function ST_Equals (
+CREATE FUNCTION ST_Equals (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
@@ -217,31 +215,28 @@ create function ST_Equals (
     external name 'geodb.GeoDB.ST_Equals'
     parameter style java;
 
-# TODO: JUnit
-create function ST_GeoHash (
+CREATE FUNCTION ST_GeoHash (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS VARCHAR(32672)
     language java
     external name 'geodb.GeoDB.ST_GeoHash'
     parameter style java;
 
-# TODO: JUnit
-create function ST_GeomFromEWKB (
+CREATE FUNCTION ST_GeomFromEWKB (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_GeomFromEWKB'
     parameter style java;
 
-# TODO: JUnit
-create function ST_GeomFromEWKT (
+CREATE FUNCTION ST_GeomFromEWKT (
     SPATIAL_WKT VARCHAR(32672)
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_GeomFromEWKT'
     parameter style java;
 
-create function ST_GeomFromText (
+CREATE FUNCTION ST_GeomFromText (
     SPATIAL_WKT VARCHAR(32672),
     SPATIAL_SRID INTEGER
 ) RETURNS LONG VARCHAR FOR BIT DATA
@@ -249,8 +244,7 @@ create function ST_GeomFromText (
     external name 'geodb.GeoDB.ST_GeomFromText'
     parameter style java;
 
-# TODO: JUnit
-create function ST_GeomFromWKB (
+CREATE FUNCTION ST_GeomFromWKB (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA,
     SPATIAL_SRID INTEGER
 ) RETURNS LONG VARCHAR FOR BIT DATA
@@ -258,8 +252,7 @@ create function ST_GeomFromWKB (
     external name 'geodb.GeoDB.ST_GeomFromWKB'
     parameter style java;
 
-# TODO: JUnit
-create function ST_Intersection (
+CREATE FUNCTION ST_Intersection (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS LONG VARCHAR FOR BIT DATA
@@ -269,7 +262,7 @@ create function ST_Intersection (
 
 #CREATE ALIAS ST_Intersection FOR "geodb.GeoDB.ST_Intersection"
 
-create function ST_Intersects (
+CREATE FUNCTION ST_Intersects (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
@@ -277,32 +270,28 @@ create function ST_Intersects (
     external name 'geodb.GeoDB.ST_Intersects'
     parameter style java;
 
-# TODO: JUnit
-create function ST_IsEmpty (
+CREATE FUNCTION ST_IsEmpty (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_IsEmpty'
     parameter style java;
 
-# TODO: JUnit
-create function ST_IsSimple (
+CREATE FUNCTION ST_IsSimple (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_IsSimple'
     parameter style java;
 
-# TODO: JUnit
-create function ST_IsValid (
+CREATE FUNCTION ST_IsValid (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_IsValid'
     parameter style java;
 
-# TODO: JUnit
-create function ST_MakePoint (
+CREATE FUNCTION ST_MakePoint (
     SPATIAL_X DOUBLE PRECISION,
     SPATIAL_Y DOUBLE PRECISION
 ) RETURNS LONG VARCHAR FOR BIT DATA
@@ -310,8 +299,7 @@ create function ST_MakePoint (
     external name 'geodb.GeoDB.ST_MakePoint'
     parameter style java;
 
-# TODO: JUnit
-create function ST_MakeBox2D (
+CREATE FUNCTION ST_MakeBox2D (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS LONG VARCHAR FOR BIT DATA
@@ -319,7 +307,7 @@ create function ST_MakeBox2D (
     external name 'geodb.GeoDB.ST_MakeBox2D'
     parameter style java;
 
-create function ST_MakeBox2D (
+CREATE FUNCTION ST_MakeBox2D (
     SPATIAL_X1 DOUBLE PRECISION,
     SPATIAL_Y1 DOUBLE PRECISION,
     SPATIAL_X2 DOUBLE PRECISION,
@@ -329,7 +317,7 @@ create function ST_MakeBox2D (
     external name 'geodb.GeoDB.ST_MakeBox2D'
     parameter style java;
 
-create function ST_Overlaps (
+CREATE FUNCTION ST_Overlaps (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
@@ -338,7 +326,7 @@ create function ST_Overlaps (
     parameter style java;
 
 # Derby doesn't support function overloading.
-#create function ST_Relate (
+#CREATE FUNCTION ST_Relate (
 #    SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
 #    SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA,
 #    SPATIAL_INTERSECTION_PATTERN VARCHAR(32672)
@@ -347,7 +335,7 @@ create function ST_Overlaps (
 #    external name 'geodb.GeoDB.ST_Relate'
 #    parameter style java;
 
-create function ST_Relate (
+CREATE FUNCTION ST_Relate (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS VARCHAR(32672)
@@ -355,29 +343,28 @@ create function ST_Relate (
     external name 'geodb.GeoDB.ST_Relate'
     parameter style java;
 
-create function ST_SRID (
+CREATE FUNCTION ST_SRID (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS INT
     language java
     external name 'geodb.GeoDB.ST_SRID'
     parameter style java;
 
-create function ST_X (
+CREATE FUNCTION ST_X (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS DOUBLE PRECISION
     language java
     external name 'geodb.GeoDB.ST_X'
     parameter style java;
 
-create function ST_Y (
+CREATE FUNCTION ST_Y (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS DOUBLE PRECISION
     language java
     external name 'geodb.GeoDB.ST_Y'
     parameter style java;
 
-# TODO: JUnit
-create function ST_SetSRID (
+CREATE FUNCTION ST_SetSRID (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA,
     SPATIAL_SRID INT
 ) RETURNS LONG VARCHAR FOR BIT DATA
@@ -385,8 +372,7 @@ create function ST_SetSRID (
     external name 'geodb.GeoDB.ST_SetSRID'
     parameter style java;
 
-# TODO: JUnit
-create function ST_Simplify (
+CREATE FUNCTION ST_Simplify (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA,
     SPATIAL_DISTANCE DOUBLE PRECISION
 ) RETURNS LONG VARCHAR FOR BIT DATA
@@ -394,7 +380,7 @@ create function ST_Simplify (
     external name 'geodb.GeoDB.ST_Simplify'
     parameter style java;
 
-create function ST_SymDifference (
+CREATE FUNCTION ST_SymDifference (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS LONG VARCHAR FOR BIT DATA
@@ -402,7 +388,7 @@ create function ST_SymDifference (
     external name 'geodb.GeoDB.ST_SymDifference'
     parameter style java;
 
-create function ST_Touches (
+CREATE FUNCTION ST_Touches (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
@@ -410,7 +396,7 @@ create function ST_Touches (
     external name 'geodb.GeoDB.ST_Touches'
     parameter style java;
 
-create function ST_Union (
+CREATE FUNCTION ST_Union (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS LONG VARCHAR FOR BIT DATA
@@ -418,7 +404,7 @@ create function ST_Union (
     external name 'geodb.GeoDB.ST_Union'
     parameter style java;
 
-create function ST_Within (
+CREATE FUNCTION ST_Within (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
     SPATIAL_WKB2 LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
@@ -426,7 +412,12 @@ create function ST_Within (
     external name 'geodb.GeoDB.ST_Within'
     parameter style java;
 
-#CREATE ALIAS Version FOR "geodb.GeoDB.Version"
+CREATE FUNCTION Version () RETURNS VARCHAR(16)
+    language java
+    external name 'geodb.GeoDB.Version'
+    parameter style java;
+
+# Derby can't alias types.
 #CREATE DOMAIN POINT AS BLOB
 #CREATE DOMAIN LINESTRING AS BLOB
 #CREATE DOMAIN POLYGON AS BLOB
