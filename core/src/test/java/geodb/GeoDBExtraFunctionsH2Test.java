@@ -18,9 +18,9 @@ import com.vividsolutions.jts.io.ParseException;
 
 /**
  * <code>GeoDBExtraFunctionsH2Test</code> runs the tests in
- * {@link TestGeoDBExtraFunctions} with H2.
+ * {@link GeoDBExtraFunctionsTest} with H2.
  */
-public class GeoDBExtraFunctionsH2Test extends TestGeoDBExtraFunctions {
+public class GeoDBExtraFunctionsH2Test extends GeoDBExtraFunctionsTest {
     /** The H2 test utilities. */
     private static final H2TestUtils TEST_UTILS = new H2TestUtils();
 

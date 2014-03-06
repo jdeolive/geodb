@@ -13,7 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public abstract class TestGeoDB extends GeoDBTestSupport {
+public abstract class GeoDBTest extends GeoDBTestSupport {
     /**
      * The name of the database.
      * @return the database name.
@@ -21,6 +21,16 @@ public abstract class TestGeoDB extends GeoDBTestSupport {
     public static String getDatabaseName() {
         return "geodb";
     }
+
+    /**
+     * Creates the <code>InitGeoDB</code> procedure.
+     * 
+     * @param st
+     *            the statement to execute the SQL.
+     * @throws SQLException
+     *             if unable to execute the SQL.
+     */
+    protected abstract void createInitGeoDBProcedure(Statement st) throws SQLException;
 
     @Before
     public void setUp() throws Exception {
@@ -39,18 +49,24 @@ public abstract class TestGeoDB extends GeoDBTestSupport {
         final Connection cx = getConnection();
         ResultSet tables = cx.getMetaData().getTables(null, null, GeoDB.getGeoDBTableName(cx), new String[] {"TABLE"});
         assertFalse(tables.next());
-        
-        GeoDB.InitGeoDB(cx);
+
+        Statement st = cx.createStatement();
+        createInitGeoDBProcedure(st);
+        st.execute("CALL InitGeoDB()");
+        st.close();
         tables = cx.getMetaData().getTables(null, null, GeoDB.getGeoDBTableName(cx), new String[] {"TABLE"});
         assertTrue(tables.next());
         
         tables.close();
     }
-    
+
     @Test
     public void testCreateSpatialIndex() throws Exception {
-        GeoDB.InitGeoDB(getConnection());
-        Statement st = getConnection().createStatement();
+        final Connection cx = getConnection();
+        Statement st = cx.createStatement();
+
+        createInitGeoDBProcedure(st);
+        st.execute("CALL InitGeoDB()");
 
         createTable(st, "spatial", "id", "geom");
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(0 0)', 4326))");
@@ -58,13 +74,40 @@ public abstract class TestGeoDB extends GeoDBTestSupport {
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(2 2)', 4326))");
         
         ResultSet tables = 
-            getConnection().getMetaData().getTables(null, null, "SPATIAL_HATBOX", new String[] {"TABLE"});
+            cx.getMetaData().getTables(null, null, "SPATIAL_HATBOX", new String[] {"TABLE"});
         assertFalse(tables.next());
         st.execute("CALL CreateSpatialIndex(null, 'SPATIAL', 'GEOM', '4326')");
         
         tables = 
-            getConnection().getMetaData().getTables(null, null, "SPATIAL_HATBOX", new String[] {"TABLE"});
+            cx.getMetaData().getTables(null, null, "SPATIAL_HATBOX", new String[] {"TABLE"});
         assertTrue(tables.next());
+        st.close();
+    }
+
+    @Test
+    public void testDropSpatialIndex() throws Exception {
+        final Connection cx = getConnection();
+        Statement st = cx.createStatement();
+
+        createInitGeoDBProcedure(st);
+        st.execute("CALL InitGeoDB()");
+
+        createTable(st, "spatial", "id", "geom");
+        
+        ResultSet tables = 
+            cx.getMetaData().getTables(null, null, "SPATIAL_HATBOX", new String[] {"TABLE"});
+        assertFalse(tables.next());
+        st.execute("CALL CreateSpatialIndex(null, 'SPATIAL', 'GEOM', '4326')");
+        
+        tables = 
+            cx.getMetaData().getTables(null, null, "SPATIAL_HATBOX", new String[] {"TABLE"});
+        assertTrue(tables.next());
+
+        st.execute("CALL DropSpatialIndex(null, 'SPATIAL')");
+        tables = 
+                cx.getMetaData().getTables(null, null, "SPATIAL_HATBOX", new String[] {"TABLE"});
+        assertFalse(tables.next());
+
         st.close();
     }
 

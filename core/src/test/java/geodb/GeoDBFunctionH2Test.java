@@ -8,10 +8,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 /**
- * <code>GeoDBFunctionH2Test</code> runs the tests in {@link TestGeoDBFunction}
+ * <code>GeoDBFunctionH2Test</code> runs the tests in {@link GeoDBFunctionTest}
  * with H2.
  */
-public class GeoDBFunctionH2Test extends TestGeoDBFunction {
+public class GeoDBFunctionH2Test extends GeoDBFunctionTest {
     /** The H2 test utilities. */
     private static final H2TestUtils TEST_UTILS = new H2TestUtils();
 

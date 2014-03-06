@@ -8,7 +8,7 @@ GeoDB is a spatial extension of [H2](http://h2database.com) and [Apache Derby](h
 * Download [GeoDB](http://ares.boundlessgeo.com/geodb/0.8/geodb-0.8-app.zip)
 * Unzip the `geodb-0.8-app.zip` file
 * Update the `PATH` environment variable to include `geodb-0.8/bin`
-* Run the @geodb@ command:
+* Run the `geodb` command:
 
         % geodb foo
 
@@ -39,11 +39,11 @@ GeoDB is a spatial extension of [H2](http://h2database.com) and [Apache Derby](h
 
 ## Apache Derby
 * Download [GeoDB](http://repo.opengeo.org/org/opengeo/geodb), [Hatbox](http://repo.opengeo.org/net/sourceforge/hatbox/hatbox/) and [JTS](http://mvnrepository.com/artifact/com.vividsolutions/jts)
-* Update the `CLASSPATH` environment variables to include the three `jar` files
+* Update the `CLASSPATH` environment variable to include the three `jar` files
 * Download [Apache Derby](http://db.apache.org/derby/derby_downloads.html) 10.10.1.1 or newer
 * Unzip the `db-derby-10.10.1.1-bin.zip` file
 * Update the `PATH` environment variable to include `db-derby-10.10.1.1-bin/bin`
-* Run the @ij@ command:
+* Run the `ij` command:
 
         ij> connect 'jdbc:derby:foo;create=true';
 

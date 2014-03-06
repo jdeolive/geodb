@@ -13,7 +13,7 @@ import org.junit.Test;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTReader;
 
-public abstract class TestGeoDBFunction extends GeoDBTestSupport {
+public abstract class GeoDBFunctionTest extends GeoDBTestSupport {
     /**
      * The name of the test database.
      * 

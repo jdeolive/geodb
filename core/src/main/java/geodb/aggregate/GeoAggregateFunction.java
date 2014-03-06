@@ -62,6 +62,11 @@ public abstract class GeoAggregateFunction implements AggregateFunction, Aggrega
      * @see org.apache.derby.agg.Aggregator#init()
      */
     public void init() {
+        try {
+            init(null);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to initialize the function", e);
+        }
     }
 
     /**
@@ -89,13 +94,4 @@ public abstract class GeoAggregateFunction implements AggregateFunction, Aggrega
     public byte[] terminate() {
         return (byte[])getResult();
     }
-
-    /**
-     * @see org.h2.api.AggregateFunction#init(java.sql.Connection)
-     */
-    public void init(Connection arg0) throws SQLException {
-        // TODO Auto-generated method stub
-        
-    }
-
 }

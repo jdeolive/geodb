@@ -2,7 +2,7 @@ package geodb.aggregate;
 
 import geodb.DatabaseTestUtils;
 import geodb.H2TestUtils;
-import geodb.TestGeoDBFunction;
+import geodb.GeoDBFunctionTest;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 /**
- * <code>AggregateFunction</code> runs the tests in {@link TestGeoDBFunction}
+ * <code>AggregateFunction</code> runs the tests in {@link GeoDBFunctionTest}
  * with H2.
  */
 public class AggregateFunctionH2Test extends TestAggregateFunction {

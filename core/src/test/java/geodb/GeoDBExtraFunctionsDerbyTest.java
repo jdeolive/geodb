@@ -9,9 +9,9 @@ import org.junit.BeforeClass;
 
 /**
  * <code>GeoDBExtraFunctionsDerbyTest</code> runs the tests in
- * {@link TestGeoDBExtraFunctions} with Derby.
+ * {@link GeoDBExtraFunctionsTest} with Derby.
  */
-public class GeoDBExtraFunctionsDerbyTest extends TestGeoDBExtraFunctions {
+public class GeoDBExtraFunctionsDerbyTest extends GeoDBExtraFunctionsTest {
     /** The database connection instance. */
     protected Connection cx;
 

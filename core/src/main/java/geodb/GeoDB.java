@@ -1196,6 +1196,7 @@ public class GeoDB {
         final Connection connection = DriverManager.getConnection("jdbc:default:connection");
         CreateSpatialIndex(connection, schemaName, tableName, columnName, srid);
     }
+
     public static void CreateSpatialIndex( Connection cx, String schemaName, String tableName,
             String columnName, String srid) throws SQLException {
         HashMap<String,String> args = new HashMap();
@@ -1243,7 +1244,12 @@ public class GeoDB {
             st.close();
         }
     }
-    
+
+    public static void DropSpatialIndexProc( String schemaName, String tableName) throws SQLException {
+        final Connection connection = DriverManager.getConnection("jdbc:default:connection");
+        DropSpatialIndex(connection, schemaName, tableName);
+    }
+
     public static void DropSpatialIndex( Connection cx, String schemaName, String tableName) 
         throws SQLException {
         
