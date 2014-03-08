@@ -69,7 +69,9 @@ CREATE FUNCTION ST_Area (
 ) RETURNS DOUBLE PRECISION
     language java
     external name 'geodb.GeoDB.ST_Area'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_AsEWKB (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
@@ -97,14 +99,18 @@ CREATE FUNCTION ST_AsText (
 ) RETURNS VARCHAR(32672)
     language java
     external name 'geodb.GeoDB.ST_AsText'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_AsBinary (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_AsBinary'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_BBox (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
@@ -119,7 +125,9 @@ CREATE FUNCTION ST_Boundary (
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_Boundary'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Buffer (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA,
@@ -127,14 +135,18 @@ CREATE FUNCTION ST_Buffer (
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_Buffer'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Centroid (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_Centroid'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Crosses (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
@@ -142,7 +154,9 @@ CREATE FUNCTION ST_Crosses (
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_Crosses'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Contains (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
@@ -150,14 +164,18 @@ CREATE FUNCTION ST_Contains (
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_Contains'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_ConvexHull (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_ConvexHull'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_DWithin (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
@@ -174,7 +192,9 @@ CREATE FUNCTION ST_Disjoint (
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_Disjoint'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Distance (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
@@ -182,7 +202,9 @@ CREATE FUNCTION ST_Distance (
 ) RETURNS DOUBLE PRECISION
     language java
     external name 'geodb.GeoDB.ST_Distance'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Difference (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
@@ -190,14 +212,18 @@ CREATE FUNCTION ST_Difference (
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_Difference'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Dimension (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
-) RETURNS INT
+) RETURNS SMALLINT
     language java
     external name 'geodb.GeoDB.ST_Dimension'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 # TODO: Is this the correct return type?
 CREATE FUNCTION ST_Envelope (
@@ -205,7 +231,9 @@ CREATE FUNCTION ST_Envelope (
 ) RETURNS VARCHAR(32672)
     language java
     external name 'geodb.GeoDB.ST_Envelope'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Equals (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
@@ -213,7 +241,9 @@ CREATE FUNCTION ST_Equals (
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_Equals'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_GeoHash (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
@@ -258,9 +288,9 @@ CREATE FUNCTION ST_Intersection (
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_Intersection'
-    parameter style java;
-
-#CREATE ALIAS ST_Intersection FOR "geodb.GeoDB.ST_Intersection"
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Intersects (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
@@ -268,21 +298,27 @@ CREATE FUNCTION ST_Intersects (
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_Intersects'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_IsEmpty (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_IsEmpty'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_IsSimple (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_IsSimple'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_IsValid (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
@@ -323,7 +359,9 @@ CREATE FUNCTION ST_Overlaps (
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_Overlaps'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 # Derby doesn't support function overloading.
 #CREATE FUNCTION ST_Relate (
@@ -333,7 +371,9 @@ CREATE FUNCTION ST_Overlaps (
 #) RETURNS BOOLEAN
 #    language java
 #    external name 'geodb.GeoDB.ST_Relate'
-#    parameter style java;
+#    parameter style java
+#    DETERMINISTIC
+#    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Relate (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
@@ -341,28 +381,36 @@ CREATE FUNCTION ST_Relate (
 ) RETURNS VARCHAR(32672)
     language java
     external name 'geodb.GeoDB.ST_Relate'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_SRID (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS INT
     language java
     external name 'geodb.GeoDB.ST_SRID'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_X (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS DOUBLE PRECISION
     language java
     external name 'geodb.GeoDB.ST_X'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Y (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA
 ) RETURNS DOUBLE PRECISION
     language java
     external name 'geodb.GeoDB.ST_Y'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_SetSRID (
     SPATIAL_WKB LONG VARCHAR FOR BIT DATA,
@@ -386,7 +434,9 @@ CREATE FUNCTION ST_SymDifference (
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_SymDifference'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Touches (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
@@ -394,7 +444,9 @@ CREATE FUNCTION ST_Touches (
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_Touches'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Union (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
@@ -402,7 +454,9 @@ CREATE FUNCTION ST_Union (
 ) RETURNS LONG VARCHAR FOR BIT DATA
     language java
     external name 'geodb.GeoDB.ST_Union'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION ST_Within (
     SPATIAL_WKB1 LONG VARCHAR FOR BIT DATA,
@@ -410,7 +464,9 @@ CREATE FUNCTION ST_Within (
 ) RETURNS BOOLEAN
     language java
     external name 'geodb.GeoDB.ST_Within'
-    parameter style java;
+    parameter style java
+    DETERMINISTIC
+    RETURNS NULL ON NULL INPUT;
 
 CREATE FUNCTION Version () RETURNS VARCHAR(16)
     language java
@@ -428,11 +484,11 @@ CREATE FUNCTION Version () RETURNS VARCHAR(16)
 #CREATE DOMAIN GEOMETRY AS BLOB
 
 CREATE DERBY AGGREGATE ST_Extent
-    FOR VARCHAR(32672) FOR BIT DATA
+    FOR LONG VARCHAR FOR BIT DATA
     RETURNS LONG VARCHAR FOR BIT DATA
     EXTERNAL NAME 'geodb.aggregate.Extent';
 
 CREATE DERBY AGGREGATE ST_Union_Aggregate
-    FOR VARCHAR(32672) FOR BIT DATA
+    FOR LONG VARCHAR FOR BIT DATA
     RETURNS LONG VARCHAR FOR BIT DATA
     EXTERNAL NAME 'geodb.aggregate.Union';
