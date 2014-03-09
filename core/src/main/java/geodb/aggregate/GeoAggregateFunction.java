@@ -19,7 +19,7 @@ import com.vividsolutions.jts.io.WKBReader;
 
 public abstract class GeoAggregateFunction implements AggregateFunction, Aggregator<byte[], byte[], GeoAggregateFunction> {
 
-    private Geometry createGeometry(InputStream stream) {
+    private Geometry createGeometry(ByteArrayInputStream stream) {
         InputStreamInStream inputStreamInStream = new InputStreamInStream(stream);
         Geometry geometry = null;
         try {
@@ -46,7 +46,7 @@ public abstract class GeoAggregateFunction implements AggregateFunction, Aggrega
         }
     }
 
-    public final Object getResult() {
+    public final Object getResult() throws SQLException {
         Geometry geometryResult = getGeometryResult();
         if (geometryResult != null) {
             return GeoDB.gToWKB(geometryResult);
@@ -92,6 +92,10 @@ public abstract class GeoAggregateFunction implements AggregateFunction, Aggrega
      * @see org.apache.derby.agg.Aggregator#terminate()
      */
     public byte[] terminate() {
-        return (byte[])getResult();
+        try {
+            return (byte[])getResult();
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to get the function's result", e);
+        }
     }
 }

@@ -176,17 +176,17 @@ public class GeoDB {
                 }
                 
                 //create the GeoDB metadata table
-                if (tableExists(cx, null, geoDbTableName, "TABLE")) {
-                    st.execute("DROP TABLE " + geoDbTableName);
+                if (!tableExists(cx, null, geoDbTableName, "TABLE")) {
+                    st.execute("CREATE TABLE " + geoDbTableName + " (checksum VARCHAR(4))");
                 }
-                st.execute("CREATE TABLE " + geoDbTableName + " (checksum VARCHAR(4))");
+                st.execute("DELETE FROM " + geoDbTableName);
                 st.execute("INSERT INTO " + geoDbTableName + " VALUES ('" + Version() + "')" );
 
                 //create the geometry columns table
                 if (!tableExists(cx, null, "geometry_columns", "TABLE")) {
                     st.execute("CREATE TABLE geometry_columns (f_table_schema VARCHAR(128), " +
-                        "f_table_name VARCHAR(128), f_geometry_column VARCHAR(128), coord_dimension INTEGER, " +
-                        "srid INTEGER, type VARCHAR(30))");
+                        "f_table_name VARCHAR(128), f_geometry_column VARCHAR(128), coord_dimension INT, " +
+                        "srid INT, type VARCHAR(30))");
                 }
             }
             finally {
@@ -261,9 +261,9 @@ public class GeoDB {
                     StringBuilder sql = new StringBuilder();
                     sql.append("ALTER TABLE ").append(tbl(schema, table));
                     sql.append(" ADD COLUMN ").append(esc(column)).append(' ')
-                            .append(getType(cx, type));
+                            .append(getGeometryColumnType(cx, type));
                     if (isH2(cx)) {
-                        sql.append(" COMMENT '").append(getType(cx, type)).append("'");
+                        sql.append(" COMMENT '").append(getGeometryColumnType(cx, type)).append("'");
                     }
                     st.execute(sql.toString());
                 }
@@ -271,21 +271,20 @@ public class GeoDB {
             finally {
                 rs.close();
             }
-
-            if (schema == null) {
-                schema = getDefaultSchema(cx);
-            }
+            
+            schema = schema != null ? schema : getDefaultSchema(cx);   
             if (!"GEOMETRY".equals(type) && !"GEOMETRYCOLLECTION".equals(type)) {
                 String sql = "ALTER TABLE " + tbl(schema, table)
                         + " ADD CONSTRAINT "
                         + esc(geotypeConstraint(schema, table, column))
                         + " CHECK ";
-                if (isH2(cx)) {
+                if (!isH2(cx)) {
+				    sql += '(';
+                }
                 sql  += esc(column) + " IS NULL OR "
-                        + "GeometryType(" + esc(column) + ") = '" + type + "'";}
-                else {
-                    sql  += "(" + esc(column) + " IS NULL OR "
-                            + "GeometryType(" + esc(column) + ") = '" + type + "')";
+                        + "GeometryType(" + esc(column) + ") = '" + type + "'";
+                if (!isH2(cx)) {
+				    sql += ')';
                 }
                 st.execute(sql);
             }
@@ -298,7 +297,19 @@ public class GeoDB {
         }
     }
 
-    private static Object getType(Connection cx, String type)
+    /**
+     * Returns the geometry column type that is appropriate for the current
+     * database.
+     * 
+     * @param cx
+     *            the database connection.
+     * @param type
+     *            the default type.
+     * @return the database-specific type.
+     * @throws SQLException
+     *             if unable to determine the current database.
+     */
+    private static Object getGeometryColumnType(Connection cx, String type)
             throws SQLException {
         if (isH2(cx)) {
             return type;
@@ -335,9 +346,7 @@ public class GeoDB {
             //check the case of a view
             boolean isView = tableExists(cx, schema, table, "VIEW");
             
-            if (schema == null) {
-                schema = getDefaultSchema(cx);
-            }
+            schema = schema != null ? schema : getDefaultSchema(cx);
             final String constraintName = geotypeConstraint(schema,table,column);
             boolean constraintExists = true;
             String ifExistsClause = "";
@@ -399,9 +408,7 @@ public class GeoDB {
     public static void DropGeometryColumns(Connection cx, String schema, String table) throws SQLException {
         Statement st = cx.createStatement();
         try {
-            if (schema == null) {
-                schema = getDefaultSchema(cx);
-            }
+            schema = schema != null ? schema : getDefaultSchema(cx);
             
             //look up the geometry column entries
             StringBuffer sql = new StringBuffer();
@@ -419,7 +426,7 @@ public class GeoDB {
             st.close();
         }
     }
-
+    
     //
     // Geometry Outputs
     //
@@ -436,7 +443,7 @@ public class GeoDB {
     }
     
     /**
-     * Return the Well-Known Text (WKT) representation of the geometry with SRID meta data. 
+     * Return the Extended Well-Known Text (EWKT) representation of the geometry with SRID meta data. 
      */
     public static String ST_AsEWKT( byte[] wkb ) {
         if ( wkb == null ) {
@@ -459,7 +466,7 @@ public class GeoDB {
     }
 
     /**
-     * Return the Extended Well-Known Binary (WKB) representation of the geometry with SRID meta data.
+     * Return the Extended Well-Known Binary (EWKB) representation of the geometry with SRID meta data.
      */
     public static byte[] ST_AsEWKB( byte[] wkb ) {
         return wkb;
@@ -516,7 +523,7 @@ public class GeoDB {
        
         return gToWKB(gFromEWKT(wkt));
     }
-
+    
     /**
      * Return a specified ST_Geometry value from Well-Known Text representation (WKT).
      */

@@ -1,11 +1,7 @@
 package geodb;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,9 +11,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.InputStreamInStream;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
@@ -160,6 +160,128 @@ public abstract class GeoDBExtraFunctionsTest extends GeoDBTestSupport {
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(0 0)', 4326))");
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(1 1)', 4326))");
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(2 2)', 4326))");
+        st.close();
+    }
+
+    @Test
+    public void testArea() throws SQLException, IOException, ParseException {
+        Connection cx = getConnection();
+        Geometry original = GeoDB.gFromWKT(
+                "POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))", 4326);
+        Statement st = cx.createStatement();
+        ResultSet rs = st.executeQuery("VALUES ST_Area(ST_GeomFromText('"
+                + original.toText() + "', 4326))");
+        rs.next();
+        double area = rs.getDouble(1);
+        rs.close();
+        assertEquals(original.getArea(), area, 0.0001);
+
+        rs = st.executeQuery("VALUES ST_Area(null)");
+        rs.next();
+        area = rs.getDouble(1);
+        assertEquals(-1, area, 0.0001);
+        rs.close();
+
+        st.close();
+    }
+
+    @Test
+    public void testCentroid() throws SQLException, IOException, ParseException {
+        Connection cx = getConnection();
+        Statement st = cx.createStatement();
+        ResultSet rs = st
+                .executeQuery("VALUES ST_Centroid("
+                        + "ST_GeomFromText('MULTIPOINT ( -1 0, -1 2, -1 3, -1 4, -1 7, 0 1, 0 3, 1 1, 2 0, 6 0, 7 8, 9 8, 10 6 )', 4326))");
+        rs.next();
+        InputStream binaryStream = rs.getBinaryStream(1);
+        Geometry geometry = new WKBReader().read(new InputStreamInStream(binaryStream));
+        rs.close();
+        assertTrue(geometry instanceof Point);
+        Point point = (Point)geometry;
+        assertEquals(2.30769230769231, point.getX(), 0.00000000000001);
+        assertEquals(3.30769230769231, point.getY(), 0.00000000000001);
+
+        rs = st.executeQuery("VALUES ST_Centroid(null)");
+        rs.next();
+        binaryStream = rs.getBinaryStream(1);
+        rs.close();
+        assertNull(binaryStream);
+
+        st.close();
+    }
+
+    @Test
+    public void testSimplify() throws SQLException, IOException, ParseException {
+        Connection cx = getConnection();
+        Statement st = cx.createStatement();
+        ResultSet rs = st
+                .executeQuery("VALUES ST_Simplify("
+                        + "ST_GeomFromText('POLYGON((0 0, 0 1, 1 1, 1 0, 0.9 0, 0 0))', 4326), .1)");
+        rs.next();
+        InputStream binaryStream = rs.getBinaryStream(1);
+        Geometry geometry = new WKBReader().read(new InputStreamInStream(binaryStream));
+        rs.close();
+        assertTrue(geometry instanceof Polygon);
+        Polygon polygon = (Polygon)geometry;
+        assertEquals(5, polygon.getExteriorRing().getNumPoints());
+
+        st.close();
+    }
+
+    @Test
+    public void testMakePoint() throws SQLException, IOException, ParseException {
+        Connection cx = getConnection();
+        Statement st = cx.createStatement();
+        ResultSet rs = st
+                .executeQuery("VALUES ST_MakePoint(1, 2)");
+        rs.next();
+        InputStream binaryStream = rs.getBinaryStream(1);
+        Geometry geometry = new WKBReader().read(new InputStreamInStream(binaryStream));
+        rs.close();
+        assertTrue(geometry instanceof Point);
+        Point point = (Point)geometry;
+        assertEquals(1, point.getX(), 0.00000000000001);
+        assertEquals(2, point.getY(), 0.00000000000001);
+        assertEquals(0, point.getSRID());
+
+        st.close();
+    }
+
+    // TODO: ST_MakeBox2D does not create a JTS-formatted WKB.
+    @Ignore
+    public void testMakeBox2D() throws SQLException, IOException, ParseException {
+        Connection cx = getConnection();
+        Statement st = cx.createStatement();
+        ResultSet rs = st
+                .executeQuery("VALUES ST_MakeBox2D(" +
+                 "ST_GeomFromText('POINT(0 0)', 4326)," +
+                 "ST_GeomFromText('POINT(1 1)', 4326))");
+        rs.next();
+        InputStream binaryStream = rs.getBinaryStream(1);
+        Geometry geometry = new WKBReader().read(new InputStreamInStream(binaryStream));
+        rs.close();
+        Envelope envelope = geometry.getEnvelopeInternal();
+        assertEquals(0, envelope.getMinX(), 0.00000000000001);
+        assertEquals(0, envelope.getMinY(), 0.00000000000001);
+        assertEquals(1, envelope.getMaxX(), 0.00000000000001);
+        assertEquals(1, envelope.getMaxY(), 0.00000000000001);
+
+        st.close();
+    }
+
+    @Test
+    public void testSetSRID() throws SQLException, IOException, ParseException {
+        Connection cx = getConnection();
+        Statement st = cx.createStatement();
+        ResultSet rs = st
+                .executeQuery("VALUES ST_SetSRID("
+                        + "ST_GeomFromText('POINT(-123.365556 48.428611)', 4326), 3785)");
+        rs.next();
+        InputStream binaryStream = rs.getBinaryStream(1);
+        Geometry geometry = new WKBReader().read(new InputStreamInStream(binaryStream));
+        rs.close();
+        assertEquals(3785, geometry.getSRID());
+
         st.close();
     }
 

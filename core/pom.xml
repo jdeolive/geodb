@@ -58,30 +58,6 @@
         </configuration>
       </plugin>
       <plugin>
-         <artifactId>maven-surefire-plugin</artifactId>
-         <configuration>
-            <systemPropertyVariables>
-               <database.driver>org.h2.Driver</database.driver>
-               <database.connection>jdbc:h2:target/geodb</database.connection>
-            </systemPropertyVariables>
-         </configuration>
-         <executions>
-            <execution>
-               <id>Test Derby</id>
-               <phase>test</phase>
-               <goals>
-                  <goal>test</goal>
-               </goals>
-               <configuration>
-                  <systemPropertyVariables>
-                     <database.driver>org.apache.derby.jdbc.EmbeddedDriver</database.driver>
-                     <database.connection>jdbc:derby:directory:target/geodb;create=true</database.connection>
-                  </systemPropertyVariables>
-               </configuration>
-            </execution>
-         </executions>
-      </plugin>
-      <plugin>
         <artifactId>maven-source-plugin</artifactId>
         <configuration> 
           <attach>true</attach>
