@@ -10,8 +10,8 @@
 
   <repositories>
     <repository>
-      <id>opengeo</id>
-      <url>http://repo.opengeo.org</url>
+      <id>boundless</id>
+      <url>http://repo.boundlessgeo.com</url>
     </repository>
   </repositories>
 
@@ -65,14 +65,14 @@
 
   <distributionManagement>
     <repository>
-      <id>opengeo</id>
-      <name>OpenGeo Maven Repository</name>
-      <url>dav:http://repo.opengeo.org</url>
+      <id>boundless</id>
+      <name>Boundless Maven Repository</name>
+      <url>http://repo.boundlessgeo.com/main</url>
     </repository>
     <snapshotRepository>
-      <id>opengeo</id>
-      <name>OpenGeo Maven Repository</name>
-      <url>dav:http://repo.opengeo.org</url>
+      <id>boundless</id>
+      <name>Boundless Maven Repository</name>
+      <url>http://repo.boundlessgeo.com</url>
       <uniqueVersion>false</uniqueVersion>
     </snapshotRepository>
   </distributionManagement>
