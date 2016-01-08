@@ -11,7 +11,7 @@
   <repositories>
     <repository>
       <id>boundless</id>
-      <url>http://repo.boundlessgeo.com</url>
+      <url>https://repo.boundlessgeo.com/main</url>
     </repository>
   </repositories>
 
