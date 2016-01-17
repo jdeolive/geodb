@@ -5,10 +5,9 @@
   <parent>
     <groupId>org.opengeo</groupId>
     <artifactId>geodb-parent</artifactId>
-    <version>0-SNAPSHOT</version>
+    <version>0.9-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.opengeo</groupId>
   <artifactId>geodb</artifactId>
   <packaging>jar</packaging>
   <name>GeoDB Core</name>
@@ -33,6 +32,18 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.7</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>10.10.1.1</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

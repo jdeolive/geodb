@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -92,13 +93,28 @@ public class GeoDB {
     //
     // Database initializer
     //
+    public static void InitGeoDBProc() throws SQLException {
+       final Connection connection = DriverManager.getConnection("jdbc:default:connection");
+       InitGeoDB(connection);
+    }
+
+    //
+    // Database initializer
+    //
     public static void InitGeoDB(Connection cx) throws SQLException {
         try {
+            final String scriptSuffix;
+            final String geoDbTableName = getGeoDBTableName(cx);
+            if (isH2(cx)) {
+                scriptSuffix = "_h2";
+            } else {
+                scriptSuffix = "_derby";
+            }
             Statement st = cx.createStatement();
             try {
                 //first check if this database is already spatial and up to date
                 try { 
-                    ResultSet rs = st.executeQuery("SELECT checksum FROM _GEODB");
+                    ResultSet rs = st.executeQuery("SELECT checksum FROM " + geoDbTableName);
                     try {
                         //table exists, check the checksum
                         if (rs.next()) {
@@ -117,23 +133,38 @@ public class GeoDB {
                 catch (SQLException e) {
                     //first time, continue with initialization
                 }
-            
-                //load h2 functions
+
+                //load h2/derby functions
                 BufferedReader in = new BufferedReader(
-                    new InputStreamReader(GeoDB.class.getResourceAsStream("geodb.sql")));
+                    new InputStreamReader(GeoDB.class.getResourceAsStream("geodb" + scriptSuffix + ".sql")));
                 String line = null;
+                String fullLine = "";
                 while((line = in.readLine()) != null) {
-                    try {
-                        st.execute(line);
+                    line = line.trim();
+                    // Skip lines that start with a '#'.
+                    if (line.startsWith("#") || line.length() == 0) {
+                        continue;
                     }
-                    catch(SQLException e) {
-                        //ignore
+                    if (fullLine == null) {
+                        fullLine = line;
+                    } else {
+                        fullLine += ' ' + line;
+                    }
+                    if (line.endsWith(";")) {
+                        fullLine = fullLine.substring(0, fullLine.lastIndexOf(';'));
+                        try {
+                            CmdLine.LOGGER.log(Level.FINE, "Executing line : " + fullLine);
+                            st.execute(fullLine);
+                        } catch (SQLException e) {
+                            // ignore
+                        }
+                        fullLine = null;
                     }
                 }
                 in.close();
                 
                 //load hatbox functions
-                List<String> ddl = CmdLine.getddl("create_h2.sql");
+                List<String> ddl = CmdLine.getddl("create" + scriptSuffix + ".sql");
                 for (Iterator<String> i = ddl.iterator(); i.hasNext(); ) {
                     line = i.next();
                     try {
@@ -144,15 +175,19 @@ public class GeoDB {
                     }
                 }
                 
-                //create the _GEOH2 metadata table
-                st.execute("CREATE TABLE IF NOT EXISTS _GEODB (checksum VARCHAR)");
-                st.execute("DELETE FROM _GEODB");
-                st.execute("INSERT INTO _GEODB VALUES (" + Version() + ")" );
-                
+                //create the GeoDB metadata table
+                if (!tableExists(cx, null, geoDbTableName, "TABLE")) {
+                    st.execute("CREATE TABLE " + geoDbTableName + " (checksum VARCHAR(4))");
+                }
+                st.execute("DELETE FROM " + geoDbTableName);
+                st.execute("INSERT INTO " + geoDbTableName + " VALUES ('" + Version() + "')" );
+
                 //create the geometry columns table
-                st.execute("CREATE TABLE IF NOT EXISTS geometry_columns (f_table_schema VARCHAR, " +
-                    "f_table_name VARCHAR, f_geometry_column VARCHAR, coord_dimension INT, " +
-                    "srid INT, type VARCHAR(30))");
+                if (!tableExists(cx, null, "geometry_columns", "TABLE")) {
+                    st.execute("CREATE TABLE geometry_columns (f_table_schema VARCHAR(128), " +
+                        "f_table_name VARCHAR(128), f_geometry_column VARCHAR(128), coord_dimension INT, " +
+                        "srid INT, type VARCHAR(30))");
+                }
             }
             finally {
                 st.close();
@@ -162,10 +197,45 @@ public class GeoDB {
             throw (SQLException) new SQLException("Could not initialize database").initCause(e);
         }
     }
-    
+
+    /**
+     * Returns the appropriate GeoDB table name for the given connection.
+     * 
+     * @param cx
+     *            the database connection.
+     * @return the GeoDB table name.
+     * @throws SQLException
+     *             if unable to extract the database product name from the
+     *             connection.
+     */
+    public static String getGeoDBTableName(Connection cx) throws SQLException {
+        if (isH2(cx)) {
+            return "_GEODB";
+        } else {
+            return "GEODB_";
+        }
+    }
+
     //
     // Management functions
     //
+    /**
+     * Adds a geometry column to a table.
+     * 
+     * @param schema The table schema, may be <code>null</code> to specify default schema
+     * @param table The table name, not null
+     * @param column The geometry column name, not null
+     * @param srid The spatial reference system identifier
+     * @param type The geometry type, one of "POINT", "LINESTRING", "POLYGON", "MULTIPOINT", 
+     *             "MULTILINESTRING", "MULTIPOLYGON", "GEOMETRY", "GEOMETRYCOLLECTION"
+     * @param dim The geometry dimension 
+     */
+    public static void AddGeometryColumnProc(String schema, String table, 
+        String column, int srid, String type, int dim) throws SQLException {
+        Connection cx = DriverManager.getConnection("jdbc:default:connection");
+        AddGeometryColumn(cx, schema, table, column, srid, type, dim);
+    }
+
     /**
      * Adds a geometry column to a table.
      * 
@@ -188,19 +258,35 @@ public class GeoDB {
                 cx.getMetaData().getColumns(null, schema, table, column);
             try {
                 if (!rs.next()) {
-                    st.execute("ALTER TABLE " + tbl(schema, table) + " ADD " 
-                        + esc(column) + " " + type + " COMMENT '" + type + "'");
+                    StringBuilder sql = new StringBuilder();
+                    sql.append("ALTER TABLE ").append(tbl(schema, table));
+                    sql.append(" ADD COLUMN ").append(esc(column)).append(' ')
+                            .append(getGeometryColumnType(cx, type));
+                    if (isH2(cx)) {
+                        sql.append(" COMMENT '").append(getGeometryColumnType(cx, type)).append("'");
+                    }
+                    st.execute(sql.toString());
                 }
             }
             finally {
                 rs.close();
             }
             
-            schema = schema != null ? schema : "PUBLIC";   
+            schema = schema != null ? schema : getDefaultSchema(cx);   
             if (!"GEOMETRY".equals(type) && !"GEOMETRYCOLLECTION".equals(type)) {
-                st.execute("ALTER TABLE " + tbl(schema, table) + " ADD CONSTRAINT " + 
-                    esc(geotypeConstraint(schema,table,column)) + " CHECK " + esc(column) + 
-                    " IS NULL OR " + "GeometryType(" + esc(column) + ") = '" + type + "'");
+                String sql = "ALTER TABLE " + tbl(schema, table)
+                        + " ADD CONSTRAINT "
+                        + esc(geotypeConstraint(schema, table, column))
+                        + " CHECK ";
+                if (!isH2(cx)) {
+				    sql += '(';
+                }
+                sql  += esc(column) + " IS NULL OR "
+                        + "GeometryType(" + esc(column) + ") = '" + type + "'";
+                if (!isH2(cx)) {
+				    sql += ')';
+                }
+                st.execute(sql);
             }
             st.execute("INSERT INTO geometry_columns VALUES (" + 
                 str(schema) + ", " + str(table) + ", " + str(column) + ", " + 
@@ -210,10 +296,44 @@ public class GeoDB {
             st.close();
         }
     }
-    
+
+    /**
+     * Returns the geometry column type that is appropriate for the current
+     * database.
+     * 
+     * @param cx
+     *            the database connection.
+     * @param type
+     *            the default type.
+     * @return the database-specific type.
+     * @throws SQLException
+     *             if unable to determine the current database.
+     */
+    private static Object getGeometryColumnType(Connection cx, String type)
+            throws SQLException {
+        if (isH2(cx)) {
+            return type;
+        }
+        return "VARCHAR (32672) FOR BIT DATA";
+    }
+
     /**
      * Drops a geometry column from a table.
      * 
+     * @param schema The table schema, may be <code>null</code> to specify default schema
+     * @param table The table name, not null
+     * @param column The geometry column name, not null
+     */
+    public static void DropGeometryColumnProc(String schema, String table, String column) 
+        throws SQLException {
+        Connection cx = DriverManager.getConnection("jdbc:default:connection");
+        DropGeometryColumn(cx, schema, table, column);
+    }
+
+    /**
+     * Drops a geometry column from a table.
+     * 
+     * @param cx The database connection
      * @param schema The table schema, may be <code>null</code> to specify default schema
      * @param table The table name, not null
      * @param column The geometry column name, not null
@@ -224,18 +344,36 @@ public class GeoDB {
         Statement st = cx.createStatement();
         try {
             //check the case of a view
-            boolean isView = false;
-            ResultSet tables = cx.getMetaData().getTables(null, schema, table, new String[]{"VIEW"});
-            try {
-                isView = tables.next();
-            }
-            finally {
-                tables.close();
+            boolean isView = tableExists(cx, schema, table, "VIEW");
+            
+            schema = schema != null ? schema : getDefaultSchema(cx);
+            final String constraintName = geotypeConstraint(schema,table,column);
+            boolean constraintExists = true;
+            String ifExistsClause = "";
+            if (isH2(cx)) {
+                ifExistsClause = "IF EXISTS ";
+            } else {
+                // Query the Derby SYS schema to determine if the constraint already exists.
+                StringBuilder sql = new StringBuilder();
+                sql.append("SELECT * FROM SYS.SYSSCHEMAS s INNER JOIN SYS.SYSTABLES t ");
+                sql.append("ON s.SCHEMANAME = ").append(str(schema));
+                sql.append(" AND t.TABLENAME = ").append(str(table));
+                sql.append(" AND s.SCHEMAID = t.SCHEMAID INNER JOIN SYS.SYSCONSTRAINTS c ");
+                sql.append("ON c.CONSTRAINTNAME = ").append(str(constraintName));
+                sql.append(" AND c.TABLEID = t.TABLEID");
+                ResultSet rs = st.executeQuery(sql.toString());
+                try {
+                    constraintExists = rs.next();
+                }
+                finally {
+                    rs.close();
+                }
             }
             
-            schema = schema != null ? schema : "PUBLIC";
-            st.execute("ALTER TABLE " + tbl(schema, table) + " DROP CONSTRAINT IF EXISTS " 
-                + esc(geotypeConstraint(schema,table,column)));
+            if (constraintExists) {
+                st.execute("ALTER TABLE " + tbl(schema, table) + " DROP CONSTRAINT " + ifExistsClause 
+                    + esc(constraintName));
+            }
             
             if (!isView) {
                 st.execute("ALTER TABLE " + tbl(schema, table) + " DROP COLUMN " + esc(column));
@@ -255,10 +393,22 @@ public class GeoDB {
      * @param schema The table schema, may be <code>null</code> to specify default schema
      * @param table The table name, not null
      */
+    public static void DropGeometryColumnsProc(String schema, String table) throws SQLException {
+        Connection cx = DriverManager.getConnection("jdbc:default:connection");
+        DropGeometryColumns(cx, schema, table);
+    }
+
+    /**
+     * Drops all the geometry columns from a table.
+     * 
+     * @param cx The database connection
+     * @param schema The table schema, may be <code>null</code> to specify default schema
+     * @param table The table name, not null
+     */
     public static void DropGeometryColumns(Connection cx, String schema, String table) throws SQLException {
         Statement st = cx.createStatement();
         try {
-            schema = schema != null ? schema : "PUBLIC";
+            schema = schema != null ? schema : getDefaultSchema(cx);
             
             //look up the geometry column entries
             StringBuffer sql = new StringBuffer();
@@ -293,7 +443,7 @@ public class GeoDB {
     }
     
     /**
-     * Return the Well-Known Text (WKT) representation of the geometry with SRID meta data. 
+     * Return the Extended Well-Known Text (EWKT) representation of the geometry with SRID meta data. 
      */
     public static String ST_AsEWKT( byte[] wkb ) {
         if ( wkb == null ) {
@@ -303,9 +453,20 @@ public class GeoDB {
         Geometry g = gFromWKB(wkb);
         return gToEWKT(g);
     }
-    
+
     /**
-     * Return the Well-Known Binary (WKB) representation of the geometry with SRID meta data.
+     * Return the Well-Known Binary (WKB) representation of the geometry without SRID meta data.
+     */
+    public static byte[] ST_AsBinary( byte[] wkb ) {
+        if (wkb == null) {
+            return null;
+        }
+
+        return wkb;
+    }
+
+    /**
+     * Return the Extended Well-Known Binary (EWKB) representation of the geometry with SRID meta data.
      */
     public static byte[] ST_AsEWKB( byte[] wkb ) {
         return wkb;
@@ -345,6 +506,10 @@ public class GeoDB {
      *  Return a specified ST_Geometry value from Extended Well-Known Binary representation (EWKB).
      */
     public static byte[] ST_GeomFromEWKB (byte[] wkb) {
+        if (wkb == null) {
+            return null;
+        }
+
         return gToWKB(gFromWKB(wkb));
     }
     
@@ -1048,11 +1213,17 @@ public class GeoDB {
     //
     // Management functions
     //
+    public static void CreateSpatialIndexProc( String schemaName, String tableName,
+            String columnName, String srid) throws SQLException {
+        final Connection connection = DriverManager.getConnection("jdbc:default:connection");
+        CreateSpatialIndex(connection, schemaName, tableName, columnName, srid);
+    }
+
     public static void CreateSpatialIndex( Connection cx, String schemaName, String tableName,
             String columnName, String srid) throws SQLException {
         HashMap<String,String> args = new HashMap();
         if (schemaName == null) {
-            schemaName = "PUBLIC";
+            schemaName = getDefaultSchema(cx);
         }
         
         args.put("s", schemaName);
@@ -1095,13 +1266,18 @@ public class GeoDB {
             st.close();
         }
     }
-    
+
+    public static void DropSpatialIndexProc( String schemaName, String tableName) throws SQLException {
+        final Connection connection = DriverManager.getConnection("jdbc:default:connection");
+        DropSpatialIndex(connection, schemaName, tableName);
+    }
+
     public static void DropSpatialIndex( Connection cx, String schemaName, String tableName) 
         throws SQLException {
         
         HashMap<String,String> args = new HashMap();
         if (schemaName == null) {
-            schemaName = "PUBLIC";
+            schemaName = getDefaultSchema(cx);
         }
         
         args.put("s", schemaName);
@@ -1281,6 +1457,56 @@ public class GeoDB {
     //
     // helper/utility functions
     //
+
+    /**
+     * Determines if the current database is H2.
+     * @param cx the database connection.
+     * @return <code>true</code> if the database connection is to H2.
+     * @throws SQLException if unable to fetch the database metadata.
+     */
+    public static boolean isH2(Connection cx) throws SQLException {
+        return "H2".equalsIgnoreCase(cx.getMetaData().getDatabaseProductName());
+    }
+
+    /**
+     * Returns the default schema name depending upon the type of database.
+     * @param cx the database connection.
+     * @return the default schema name.
+     * @throws SQLException if unable to fetch the database metadata.
+     */
+    public static String getDefaultSchema(Connection cx) throws SQLException {
+        return isH2(cx) ? "PUBLIC" : cx.getMetaData().getUserName().toUpperCase();
+    }
+
+    /**
+     * Determines if the specified table exists.
+     * 
+     * @param cx
+     *            the database connection.
+     * @param schemaName
+     *            the schema name or <code>null</code>.
+     * @param tableName
+     *            the table name.
+     * @param types
+     *            the array of table types (see
+     *            {@link DatabaseMetaData#getTableTypes() getTableTypes()}) or
+     *            <code>null</code> for all types.
+     * @return <code>true</code> if the table exists.
+     * @throws SQLException
+     *             if unable to query the database.
+     */
+    public static boolean tableExists(Connection cx, String schemaName,
+            String tableName, String... types) throws SQLException {
+        boolean exists = false;
+        ResultSet rs = cx.getMetaData().getTables(null, schemaName, tableName.toUpperCase(), types);
+        try {
+            exists = rs.next();
+        } finally {
+            rs.close();
+        }
+        return exists;
+    }
+
     public static byte[] gToWKB( Geometry g ) {
         return wkbwriter().write( g );
     }

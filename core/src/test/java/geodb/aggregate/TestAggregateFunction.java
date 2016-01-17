@@ -6,6 +6,7 @@ import geodb.GeoDB;
 import geodb.GeoDBTestSupport;
 
 import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
@@ -16,22 +17,29 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.InputStreamInStream;
 import com.vividsolutions.jts.io.WKBReader;
 
-public class AggregateFunctionTest extends GeoDBTestSupport {
+public abstract class TestAggregateFunction extends GeoDBTestSupport {
+    /**
+     * The name of the test database.
+     * 
+     * @return the database name.
+     */
+    public static String getDatabaseName() {
+        return "geodb_aggregate_function";
+    }
 
     @Before
     public void setup() throws Exception {
-        super.setUp();
-        
+        Connection cx = getConnection();
         Statement st = cx.createStatement();
-        st.execute("DROP TABLE IF EXISTS _GEODB");
-        st.execute("DROP TABLE IF EXISTS spatial");
-        st.execute("DROP TABLE IF EXISTS spatial_hatbox");
-        st.execute("DROP TABLE IF EXISTS noindex");
+        dropTable(st, GeoDB.getGeoDBTableName(cx));
+        dropTable(st, "spatial");
+        dropTable(st, "spatial_hatbox");
+        dropTable(st, "noindex");
         st.close();
         GeoDB.InitGeoDB(cx);
       
         st = cx.createStatement();
-        st.execute("CREATE TABLE spatial (id INT AUTO_INCREMENT PRIMARY KEY, geom BLOB)");
+        createTable(st, "spatial", "id", "geom");
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(0 0)', 4326))");
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(1 1)', 4326))");
         st.execute("INSERT INTO spatial (geom) VALUES (ST_GeomFromText('POINT(2 2)', 4326))");
@@ -40,6 +48,7 @@ public class AggregateFunctionTest extends GeoDBTestSupport {
  
     @Test
     public void testExtent() throws Exception {
+        Connection cx = getConnection();
         Statement st = cx.createStatement();
         ResultSet rs = st.executeQuery("select st_extent(geom) from spatial");
         rs.next();
@@ -51,6 +60,7 @@ public class AggregateFunctionTest extends GeoDBTestSupport {
 
     @Test
     public void testUnion() throws Exception {
+        Connection cx = getConnection();
         Statement st = cx.createStatement();
         ResultSet rs = st.executeQuery("select st_union_aggregate(geom) from spatial");
         rs.next();
@@ -59,6 +69,4 @@ public class AggregateFunctionTest extends GeoDBTestSupport {
         st.close();
         assertThat(geometry.getArea(), is(0.0));
     }
-
-
 }
