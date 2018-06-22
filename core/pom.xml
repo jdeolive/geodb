@@ -27,13 +27,7 @@
     <dependency>
       <groupId>net.sourceforge.hatbox</groupId>
       <artifactId>hatbox</artifactId>
-      <version>1.0.b7</version>
-           <exclusions>
-             <exclusion>
-               <groupId>com.vividsolutions</groupId>
-               <artifactId>jts</artifactId>
-             </exclusion>
-           </exclusions>
+      <version>1.0.b10</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
