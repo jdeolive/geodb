@@ -12,9 +12,9 @@ import java.sql.Statement;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.InputStreamInStream;
-import com.vividsolutions.jts.io.WKBReader;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.InputStreamInStream;
+import org.locationtech.jts.io.WKBReader;
 
 public class AggregateFunctionTest extends GeoDBTestSupport {
 

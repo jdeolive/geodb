@@ -9,10 +9,10 @@ import java.sql.Types;
 
 import org.h2.api.AggregateFunction;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.InputStreamInStream;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKBReader;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.InputStreamInStream;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKBReader;
 
 public abstract class GeoAggregateFunction implements AggregateFunction {
 

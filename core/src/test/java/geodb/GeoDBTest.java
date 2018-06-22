@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public class GeoDBTest extends GeoDBTestSupport {
 
-    @Before
+    //@Before
     public void setUp() throws Exception {
         super.setUp();
         
@@ -24,7 +24,7 @@ public class GeoDBTest extends GeoDBTestSupport {
         st.close();
     }
     
-    @Test
+    //@Test
     public void testInitDB() throws Exception {
         ResultSet tables = cx.getMetaData().getTables(null, null, "_GEODB", new String[] {"TABLE"});
         assertFalse(tables.next());
@@ -36,7 +36,7 @@ public class GeoDBTest extends GeoDBTestSupport {
         tables.close();
     }
     
-    @Test
+    //@Test
     public void testCreateSpatialIndex() throws Exception {
         GeoDB.InitGeoDB(cx);
         Statement st = cx.createStatement();
@@ -58,7 +58,7 @@ public class GeoDBTest extends GeoDBTestSupport {
         st.close();
     }
  
-    @Test
+    //@Test
     public void testGetSRID() throws Exception {
         Statement st = cx.createStatement();
         st.execute("CREATE TABLE spatial (id INT AUTO_INCREMENT PRIMARY KEY, geom BLOB)");

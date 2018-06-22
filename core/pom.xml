@@ -20,14 +20,20 @@
       <version>1.1.118</version>
     </dependency>
     <dependency>
-      <groupId>com.vividsolutions</groupId>
-      <artifactId>jts</artifactId>
-      <version>1.12</version>
+      <groupId>org.locationtech.jts</groupId>
+      <artifactId>jts-core</artifactId>
+      <version>${jts.version}</version>
     </dependency>
     <dependency>
       <groupId>net.sourceforge.hatbox</groupId>
       <artifactId>hatbox</artifactId>
       <version>1.0.b7</version>
+           <exclusions>
+             <exclusion>
+               <groupId>com.vividsolutions</groupId>
+               <artifactId>jts</artifactId>
+             </exclusion>
+           </exclusions>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
