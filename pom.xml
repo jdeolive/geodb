@@ -96,7 +96,7 @@
 
   <modules>
     <module>core</module>
-    <!--<module>app</module>-->
+    <module>app</module>
   </modules>
 
 </project>
