@@ -15,6 +15,10 @@
     </repository>
   </repositories>
 
+  <properties>
+   <jts.version>1.15.0</jts.version>
+  </properties>
+
   <build>
     <plugins>
       <plugin>

@@ -12,8 +12,8 @@ import java.sql.Statement;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.WKTReader;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.WKTReader;
 
 public class GeoDBFunctionTest extends GeoDBTestSupport {
 

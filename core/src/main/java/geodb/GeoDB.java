@@ -20,20 +20,20 @@ import net.sourceforge.hatbox.MetaNode;
 import net.sourceforge.hatbox.jts.Proc;
 import net.sourceforge.hatbox.tools.CmdLine;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.IntersectionMatrix;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.io.InputStreamInStream;
-import com.vividsolutions.jts.io.OutputStreamOutStream;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKBReader;
-import com.vividsolutions.jts.io.WKBWriter;
-import com.vividsolutions.jts.io.WKTReader;
-import com.vividsolutions.jts.io.WKTWriter;
-import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.IntersectionMatrix;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.InputStreamInStream;
+import org.locationtech.jts.io.OutputStreamOutStream;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKBReader;
+import org.locationtech.jts.io.WKBWriter;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.io.WKTWriter;
+import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 
 public class GeoDB {
 

@@ -3,7 +3,7 @@ package geodb.aggregate;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 
 public class Union extends GeoAggregateFunction {
 
