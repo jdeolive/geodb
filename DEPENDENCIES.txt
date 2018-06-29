@@ -5,8 +5,8 @@ GeoDB depends on the following libraries:
     Dual MPL/EPL license. See http://www.h2database.com/html/license.html
     
   * JTS Topology Suite
-    http://tsusiatsoftware.net/jts/main.html
-    LGPL license.  
+    http://github.com/locationtech/jts
+    Dual BSD / EPL license
 
   * Hatbox RTree
     http://hatbox.sourceforge.net/

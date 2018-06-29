@@ -1,12 +1,12 @@
 # Introducing GeoDB
 
-GeoDB is a spatial extension of [H2](http://h2database.com), the Java SQL database. GeoDB utilizes the [JTS](http://tsusiatsoftware.net/jts/main.html) library as its geometry engine and the [Hatbox](http://hatbox.sourceforge.net) library for spatial indexing support.
+GeoDB is a spatial extension of [H2](http://h2database.com), the Java SQL database. GeoDB utilizes the [JTS](http://github.com/locationtech/jts) library as its geometry engine and the [Hatbox](http://hatbox.sourceforge.net) library for spatial indexing support.
 
 # Quickstart
 
-* Download [GeoDB](http://ares.boundlessgeo.com/geodb/0.8/geodb-0.8-app.zip)
-* Unzip the `geodb-0.8-app.zip` file
-* Update the `PATH` environment variable to include `geodb-0.8/bin`
+* Download [GeoDB](https://github.com/jdeolive/geodb/releases/0.9/geodb-0.9-app.zip)
+* Unzip the `geodb-0.9-app.zip` file
+* Update the `PATH` environment variable to include `geodb-0.9/bin`
 * Run the @geodb@ command:
 
         % geodb foo
