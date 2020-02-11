@@ -71,12 +71,12 @@
     <repository>
       <id>boundless</id>
       <name>Boundless Maven Repository</name>
-      <url>http://repo.boundlessgeo.com/main</url>
+      <url>https://repo.boundlessgeo.com/main</url>
     </repository>
     <snapshotRepository>
       <id>boundless</id>
       <name>Boundless Maven Repository</name>
-      <url>http://repo.boundlessgeo.com</url>
+      <url>https://repo.boundlessgeo.com</url>
       <uniqueVersion>false</uniqueVersion>
     </snapshotRepository>
   </distributionManagement>
